@@ -244,6 +244,13 @@ Connecting...
 </div>
 
 <div class="card mini">
+<div class="mini-title">Device Status</div>
+<div class="mini-value" id="deviceStatus">
+🔴 Offline
+</div>
+</div>
+
+<div class="card mini">
 <div class="mini-title">Last Update</div>
 <div class="mini-value" id="lastUpdate">
 --
@@ -272,6 +279,7 @@ Trailbox IoT Dashboard • Version 1
 </div>
 
 <script>
+let lastHeartbeat=0;
 
 const client = mqtt.connect(
 'wss://YOUR_URL_HERE.hivemq.cloud:8884/mqtt',
@@ -286,13 +294,22 @@ document.getElementById(
 'mqttStatus'
 ).innerText='Connected';
 
-client.subscribe(
-'talktrail/vehicle/ldr'
-);
+client.subscribe('talktrail/vehicle/ldr');
+client.subscribe('talktrail/vehicle/status');
 
 });
 
 client.on('message',(topic,message)=>{
+if(topic === 'talktrail/vehicle/status')
+{
+lastHeartbeat = Date.now();
+
+document.getElementById(
+'deviceStatus'
+).innerText='🟢 Online';
+
+return;
+}
 
 const value = message.toString();
 
@@ -328,6 +345,19 @@ feed.lastChild
 }
 
 });
+
+setInterval(()=>{
+
+if(
+Date.now()-lastHeartbeat > 10000
+)
+{
+document.getElementById(
+'deviceStatus'
+).innerText='🔴 Offline';
+}
+
+},1000);
 
 client.on('error',()=>{
 

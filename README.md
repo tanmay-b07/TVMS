@@ -8,7 +8,7 @@ The project demonstrates end-to-end sensor data acquisition, cloud communication
 
 ## Version
 
-Current Release: **V1.0.1**
+Current Release: **V1.0.2**
 
 Status: **Released**
 
@@ -24,6 +24,9 @@ Status: **Released**
 * Live sensor monitoring
 * Android companion application
 * Mobile dashboard access
+* Device heartbeat monitoring
+* Online/Offline device detection
+* Device status dashboard card
 * End-to-end IoT data flow
 
 ---
@@ -37,7 +40,9 @@ STM32F407
      ▼
 ESP32
      │
-     │ MQTT
+     ├── LDR Data
+     └── Heartbeat Status
+     │
      ▼
 HiveMQ Cloud
      │
@@ -107,9 +112,34 @@ TVMS/
 * Mobile access to TVMS dashboard
 * Improved monitoring accessibility
 
+### V1.0.2
+
+* Device heartbeat monitoring
+* Online/Offline device status detection
+* Automatic heartbeat publishing
+* Device status dashboard card
+* MQTT status topic support
+
 ---
 
 ## Release History
+
+### V1.0.2 - Device Heartbeat Monitoring
+
+Added:
+
+* Device heartbeat monitoring
+* Online/Offline device detection
+* Device status dashboard card
+* Heartbeat MQTT topic
+* Automatic offline timeout detection
+
+MQTT Topics:
+
+* talktrail/vehicle/ldr
+* talktrail/vehicle/status
+
+---
 
 ### V1.0.1 - Android App Support
 
@@ -124,6 +154,8 @@ No changes:
 * ESP32 firmware
 * MQTT architecture
 * Dashboard functionality
+
+---
 
 ### V1.0.0 - Initial IoT Monitoring Platform
 
@@ -174,7 +206,7 @@ No changes:
 
 ## Live Dashboard
 
-https://v1dashboard.trailbox.in/
+https://v1dashboard.trailbox.in
 
 ---
 
@@ -183,3 +215,4 @@ https://v1dashboard.trailbox.in/
 Tanmay Bhosle
 
 Built under the TrailBox ecosystem.
+

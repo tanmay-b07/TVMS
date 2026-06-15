@@ -14,6 +14,8 @@ WiFiClientSecure espClient;
 PubSubClient client(espClient);
 
 String data = "";
+unsigned long lastHeartbeat = 0;
+const unsigned long HEARTBEAT_INTERVAL = 5000;
 
 void connectMQTT()
 {
@@ -63,7 +65,18 @@ void loop()
   }
 
   client.loop();
+  
+ if(millis() - lastHeartbeat >= HEARTBEAT_INTERVAL)
+{
+  client.publish(
+    "your_mqtt_topic",
+    "online"
+  );
 
+  Serial.println("Heartbeat Sent");
+
+  lastHeartbeat = millis();
+}
   while (Serial2.available())
   {
     char c = Serial2.read();
