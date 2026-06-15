@@ -8,7 +8,7 @@ The project demonstrates end-to-end sensor data acquisition, cloud communication
 
 ## Version
 
-Current Release: **V1.0.0**
+Current Release: **V1.0.1**
 
 Status: **Released**
 
@@ -22,6 +22,8 @@ Status: **Released**
 * HiveMQ Cloud integration
 * Real-time dashboard
 * Live sensor monitoring
+* Android companion application
+* Mobile dashboard access
 * End-to-end IoT data flow
 
 ---
@@ -41,6 +43,9 @@ HiveMQ Cloud
      │
      ▼
 Web Dashboard
+     │
+     ▼
+Android App
 ```
 
 ---
@@ -61,6 +66,8 @@ Web Dashboard
 * HTML
 * CSS
 * JavaScript
+* MQTT.js
+* MIT App Inventor
 
 ---
 
@@ -69,6 +76,11 @@ Web Dashboard
 ```text
 TVMS/
 
+├── app/
+│   ├── TVMS.apk
+│   ├── screenshots/
+│   └── README.md
+│
 ├── stm32/
 ├── esp32/
 ├── dashboard/
@@ -79,13 +91,48 @@ TVMS/
 
 ---
 
-## Implemented in V1.0
+## Implemented Features
+
+### V1.0.0
 
 * Sensor value acquisition using STM32 ADC
 * UART communication
 * ESP32 MQTT gateway
 * Cloud connectivity through HiveMQ
 * Real-time dashboard updates
+
+### V1.0.1
+
+* Android companion application
+* Mobile access to TVMS dashboard
+* Improved monitoring accessibility
+
+---
+
+## Release History
+
+### V1.0.1 - Android App Support
+
+Added:
+
+* Android companion application
+* Mobile dashboard access
+
+No changes:
+
+* STM32 firmware
+* ESP32 firmware
+* MQTT architecture
+* Dashboard functionality
+
+### V1.0.0 - Initial IoT Monitoring Platform
+
+* STM32 ADC acquisition
+* UART communication
+* ESP32 MQTT gateway
+* HiveMQ Cloud integration
+* Real-time dashboard
+* GitHub documentation
 
 ---
 
@@ -94,15 +141,20 @@ TVMS/
 ### V2.0
 
 * Multiple sensor support
+* Temperature monitoring
+* Humidity monitoring
+* Voltage monitoring
+* Current monitoring
 * Improved dashboard UI
 * Secure credential handling
-* Non-blocking architecture
+* Multi-device ready architecture
 
 ### V3.0
 
 * Database integration
 * Historical data storage
 * Charts and analytics
+* Sensor history
 
 ### V4.0
 
@@ -115,7 +167,14 @@ TVMS/
 * Production-ready TVMS platform
 * Advanced analytics
 * Alerts and notifications
+* Fleet monitoring
 * Complete vehicle monitoring ecosystem
+
+---
+
+## Live Dashboard
+
+https://v1dashboard.trailbox.in/
 
 ---
 
@@ -123,4 +182,4 @@ TVMS/
 
 Tanmay Bhosle
 
-Built under the TalkTrail / TrailBox ecosystem.
+Built under the TrailBox ecosystem.
