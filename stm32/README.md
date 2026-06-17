@@ -24,5 +24,4 @@ The STM32 is responsible for:
 
 ## Version
 
-TVMS V1.0
-
+TVMS V1.0.3

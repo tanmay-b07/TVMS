@@ -8,7 +8,7 @@ The project demonstrates end-to-end sensor data acquisition, cloud communication
 
 ## Version
 
-Current Release: **V1.0.2**
+Current Release: **V1.0.3**
 
 Status: **Released**
 
@@ -17,6 +17,8 @@ Status: **Released**
 ## Features
 
 * STM32F407 sensor data acquisition
+* Non-blocking firmware architecture
+* Timer-based sensor processing
 * UART communication between STM32 and ESP32
 * ESP32 MQTT publishing
 * HiveMQ Cloud integration
@@ -66,6 +68,7 @@ Android App
 ### Software
 
 * STM32CubeIDE
+* STM32CubeMX
 * Arduino IDE
 * HiveMQ Cloud
 * HTML
@@ -109,7 +112,7 @@ TVMS/
 ### V1.0.1
 
 * Android companion application
-* Mobile access to TVMS dashboard
+* Mobile dashboard access
 * Improved monitoring accessibility
 
 ### V1.0.2
@@ -120,9 +123,46 @@ TVMS/
 * Device status dashboard card
 * MQTT status topic support
 
+### V1.0.3
+
+* Non-blocking STM32 firmware architecture
+* Timer-based task scheduling
+* Improved sensor acquisition responsiveness
+* Improved UART communication handling
+* Reduced firmware latency
+* Enhanced firmware stability
+
 ---
 
 ## Release History
+
+### V1.0.3 - Non-Blocking Firmware Upgrade
+
+Added:
+
+* Timer-based non-blocking processing
+* Improved firmware responsiveness
+* Better task scheduling architecture
+
+Improved:
+
+* Sensor acquisition performance
+* UART communication reliability
+* Overall firmware stability
+
+No changes:
+
+* Dashboard architecture
+* Android application
+* MQTT topics
+* HiveMQ Cloud integration
+
+MQTT Topics:
+
+* talktrail/vehicle/ldr
+* talktrail/vehicle/status
+
+---
 
 ### V1.0.2 - Device Heartbeat Monitoring
 
@@ -177,9 +217,10 @@ No changes:
 * Humidity monitoring
 * Voltage monitoring
 * Current monitoring
+* Multi-device dashboard support
 * Improved dashboard UI
 * Secure credential handling
-* Multi-device ready architecture
+* Scalable IoT architecture
 
 ### V3.0
 
@@ -206,7 +247,7 @@ No changes:
 
 ## Live Dashboard
 
-https://v1dashboard.trailbox.in
+https://v1dashboard.trailbox.in/release2.html
 
 ---
 
