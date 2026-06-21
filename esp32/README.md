@@ -2,14 +2,15 @@
 
 This directory contains the ESP32 firmware used as the communication gateway in the TVMS project.
 
-The ESP32 acts as a bridge between the STM32 microcontroller and HiveMQ Cloud, enabling real-time sensor data transmission and device status monitoring.
+The ESP32 acts as a bridge between the STM32 microcontroller and HiveMQ Cloud, enabling real-time sensor data transmission, environmental monitoring and device status tracking.
 
 ## Responsibilities
 
 * Receive sensor data from STM32 through UART
+* Parse LDR, Temperature and Humidity values
 * Connect to WiFi
 * Connect to HiveMQ Cloud using MQTT over TLS
-* Publish sensor data to MQTT topics
+* Publish sensor data to dedicated MQTT topics
 * Transmit periodic device heartbeat messages
 * Support real-time dashboard monitoring
 
@@ -21,9 +22,17 @@ The ESP32 acts as a bridge between the STM32 microcontroller and HiveMQ Cloud, e
 
 ```text
 talktrail/vehicle/ldr
+talktrail/vehicle/temp
+talktrail/vehicle/humidity
 ```
 
-Publishes LDR sensor values received from STM32.
+Published Values:
+
+```text
+LDR Value
+Temperature Value
+Humidity Value
+```
 
 ### Device Heartbeat
 
@@ -31,13 +40,23 @@ Publishes LDR sensor values received from STM32.
 talktrail/vehicle/status
 ```
 
-Publishes device status messages used for online/offline monitoring.
-
 Payload:
 
 ```text
 online
 ```
+
+---
+
+## UART Data Format
+
+Received from STM32:
+
+```text
+LDR:3,TEMP:30.8,HUM:61
+```
+
+Parsed by ESP32 and published to individual MQTT topics.
 
 ---
 
@@ -66,20 +85,22 @@ Purpose:
 * ESP32 Board Package
 * PubSubClient Library
 * WiFi Library
+* WiFiClientSecure
 
 ---
 
 ## Communication Flow
 
 ```text
-STM32
+STM32F407
    │
    │ UART
    ▼
-ESP32
+ESP32 MQTT Gateway
    │
    ├── talktrail/vehicle/ldr
-   │
+   ├── talktrail/vehicle/temp
+   ├── talktrail/vehicle/humidity
    └── talktrail/vehicle/status
            │
            ▼
@@ -91,9 +112,20 @@ ESP32
 
 ---
 
+## Features
+
+* Multi-Sensor MQTT Publishing
+* UART Data Parsing
+* Secure MQTT Communication (TLS)
+* Device Heartbeat Monitoring
+* Real-Time Data Streaming
+* Online/Offline Device Detection
+
+---
+
 ## Version
 
-TVMS V1.0.2
+TVMS V2.0.0
 
 ## Status
 
