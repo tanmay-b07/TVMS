@@ -44,12 +44,19 @@
 ADC_HandleTypeDef hadc1;
 
 TIM_HandleTypeDef htim2;
+TIM_HandleTypeDef htim3;
 
 UART_HandleTypeDef huart2;
 
 /* USER CODE BEGIN PV */
 volatile uint32_t adc_val = 0;
 volatile uint8_t adc_ready = 0;
+volatile uint8_t humidity = 0;
+volatile uint8_t temperature = 0;
+
+uint8_t Rh_byte1, Rh_byte2;
+uint8_t Temp_byte1, Temp_byte2;
+uint8_t checksum;
 /* USER CODE END PV */
 
 /* Private function prototypes -----------------------------------------------*/
@@ -58,18 +65,125 @@ static void MX_GPIO_Init(void);
 static void MX_ADC1_Init(void);
 static void MX_TIM2_Init(void);
 static void MX_USART2_UART_Init(void);
+static void MX_TIM3_Init(void);
 /* USER CODE BEGIN PFP */
 
 /* USER CODE END PFP */
 
 /* Private user code ---------------------------------------------------------*/
 /* USER CODE BEGIN 0 */
+
 void HAL_ADC_ConvCpltCallback(ADC_HandleTypeDef * hadc)
 {
 	// get adc reading
 	adc_val = HAL_ADC_GetValue(&hadc1);
         //update flag
         adc_ready = 1;
+}
+void delay_us(uint16_t us)
+{
+    __HAL_TIM_SET_COUNTER(&htim3, 0);
+
+    while(__HAL_TIM_GET_COUNTER(&htim3) < us);
+}
+
+void Set_Pin_Output(void)
+{
+    GPIO_InitTypeDef GPIO_InitStruct = {0};
+
+    GPIO_InitStruct.Pin = GPIO_PIN_1;
+    GPIO_InitStruct.Mode = GPIO_MODE_OUTPUT_PP;
+    GPIO_InitStruct.Speed = GPIO_SPEED_FREQ_LOW;
+
+    HAL_GPIO_Init(GPIOA, &GPIO_InitStruct);
+}
+
+void Set_Pin_Input(void)
+{
+    GPIO_InitTypeDef GPIO_InitStruct = {0};
+
+    GPIO_InitStruct.Pin = GPIO_PIN_1;
+    GPIO_InitStruct.Mode = GPIO_MODE_INPUT;
+    GPIO_InitStruct.Pull = GPIO_PULLUP;
+
+    HAL_GPIO_Init(GPIOA, &GPIO_InitStruct);
+}
+void DHT11_Start(void)
+{
+    Set_Pin_Output();
+
+    HAL_GPIO_WritePin(GPIOA, GPIO_PIN_1, GPIO_PIN_RESET);
+    HAL_Delay(18);
+
+    HAL_GPIO_WritePin(GPIOA, GPIO_PIN_1, GPIO_PIN_SET);
+
+    delay_us(20);
+
+    Set_Pin_Input();
+}
+//uint8_t DHT11_Check_Response(void)
+//{
+//    uint8_t Response = 0;
+//
+//    delay_us(80);
+//
+//    if(!(HAL_GPIO_ReadPin(GPIOA, GPIO_PIN_1)))
+//    {
+//        delay_us(80);
+//
+//        if(HAL_GPIO_ReadPin(GPIOA, GPIO_PIN_1))
+//        {
+//            Response = 1;
+//        }
+//
+//        while(HAL_GPIO_ReadPin(GPIOA, GPIO_PIN_1));
+//    }
+//
+//    return Response;
+//}
+uint8_t DHT11_Check_Response(void)
+{
+    uint8_t Response = 0;
+
+    delay_us(40);
+
+    if(!(HAL_GPIO_ReadPin(GPIOA, GPIO_PIN_1)))
+    {
+        delay_us(80);
+
+        if(HAL_GPIO_ReadPin(GPIOA, GPIO_PIN_1))
+        {
+            Response = 1;
+        }
+
+        while(HAL_GPIO_ReadPin(GPIOA, GPIO_PIN_1));
+    }
+
+    return Response;
+}
+uint8_t DHT11_Read(void)
+{
+    uint8_t i=0, j;
+
+    for(j = 0; j < 8; j++)
+    {
+        while(!(HAL_GPIO_ReadPin(GPIOA, GPIO_PIN_1)));
+
+        delay_us(40);
+
+        if(!(HAL_GPIO_ReadPin(GPIOA, GPIO_PIN_1)))
+        {
+            i &= ~(1 << (7 - j));
+        }
+        else
+        {
+            i |= (1 << (7 - j));
+
+            while(HAL_GPIO_ReadPin(GPIOA, GPIO_PIN_1));
+        }
+    }
+
+    return i;
 }
 /* USER CODE END 0 */
 
@@ -105,9 +219,11 @@ int main(void)
   MX_ADC1_Init();
   MX_TIM2_Init();
   MX_USART2_UART_Init();
+  MX_TIM3_Init();
   /* USER CODE BEGIN 2 */
    HAL_TIM_Base_Start(&htim2); // start timer -- on 1 sec trigger -- start adc conv
-    HAL_ADC_Start_IT(&hadc1); // start adc -- generate interrupt upon conversion completion
+   HAL_TIM_Base_Start(&htim3);//start timer --on 1
+   HAL_ADC_Start_IT(&hadc1); // start adc -- generate interrupt upon conversion completion
 
   /* USER CODE END 2 */
 
@@ -115,17 +231,58 @@ int main(void)
   /* USER CODE BEGIN WHILE */
   while (1)
   {
-	  if(adc_ready)
-	      {
-	      	//flag check
-	          adc_ready = 0;
 
-	          char str[32];
-	          //data to string
-	          sprintf(str,"%lu\r\n",adc_val);
-	          // transmit
-	          HAL_UART_Transmit(&huart2,(uint8_t*)str,strlen(str),HAL_MAX_DELAY);
+	  if(adc_ready)
+	  {
+	      adc_ready = 0;
+
+	      DHT11_Start();
+
+	      if(DHT11_Check_Response())
+	      {
+	          Rh_byte1   = DHT11_Read();
+	          Rh_byte2   = DHT11_Read();
+
+	          Temp_byte1 = DHT11_Read();
+	          Temp_byte2 = DHT11_Read();
+
+	          checksum   = DHT11_Read();
+
+	          if(checksum == (Rh_byte1 + Rh_byte2 +
+	                          Temp_byte1 + Temp_byte2))
+	          {
+	              humidity    = Rh_byte1;
+	              temperature = Temp_byte1;
+	          }
+	          else
+	          {
+	              humidity = 0;
+	              temperature = 0;
+	          }
 	      }
+	      else
+	      {
+	          humidity = 0;
+	          temperature = 0;
+	      }
+
+	      char str[64];
+
+	      snprintf(str,
+	               sizeof(str),
+	               "LDR:%lu,TEMP:%d.%d,HUM:%d.%d\r\n",
+	               adc_val,
+	               Temp_byte1,
+	               Temp_byte2,
+	               Rh_byte1,
+	               Rh_byte2);
+
+	      HAL_UART_Transmit(&huart2,
+	                       (uint8_t*)str,
+	                       strlen(str),
+	                       100);
+	  }
+
     /* USER CODE END WHILE */
 
     /* USER CODE BEGIN 3 */
@@ -277,6 +434,51 @@ static void MX_TIM2_Init(void)
 }
 
 /**
+  * @brief TIM3 Initialization Function
+  * @param None
+  * @retval None
+  */
+static void MX_TIM3_Init(void)
+{
+
+  /* USER CODE BEGIN TIM3_Init 0 */
+
+  /* USER CODE END TIM3_Init 0 */
+
+  TIM_ClockConfigTypeDef sClockSourceConfig = {0};
+  TIM_MasterConfigTypeDef sMasterConfig = {0};
+
+  /* USER CODE BEGIN TIM3_Init 1 */
+
+  /* USER CODE END TIM3_Init 1 */
+  htim3.Instance = TIM3;
+  htim3.Init.Prescaler = 11;
+  htim3.Init.CounterMode = TIM_COUNTERMODE_UP;
+  htim3.Init.Period = 65535;
+  htim3.Init.ClockDivision = TIM_CLOCKDIVISION_DIV1;
+  htim3.Init.AutoReloadPreload = TIM_AUTORELOAD_PRELOAD_DISABLE;
+  if (HAL_TIM_Base_Init(&htim3) != HAL_OK)
+  {
+    Error_Handler();
+  }
+  sClockSourceConfig.ClockSource = TIM_CLOCKSOURCE_INTERNAL;
+  if (HAL_TIM_ConfigClockSource(&htim3, &sClockSourceConfig) != HAL_OK)
+  {
+    Error_Handler();
+  }
+  sMasterConfig.MasterOutputTrigger = TIM_TRGO_RESET;
+  sMasterConfig.MasterSlaveMode = TIM_MASTERSLAVEMODE_DISABLE;
+  if (HAL_TIMEx_MasterConfigSynchronization(&htim3, &sMasterConfig) != HAL_OK)
+  {
+    Error_Handler();
+  }
+  /* USER CODE BEGIN TIM3_Init 2 */
+
+  /* USER CODE END TIM3_Init 2 */
+
+}
+
+/**
   * @brief USART2 Initialization Function
   * @param None
   * @retval None
@@ -316,12 +518,23 @@ static void MX_USART2_UART_Init(void)
   */
 static void MX_GPIO_Init(void)
 {
+  GPIO_InitTypeDef GPIO_InitStruct = {0};
   /* USER CODE BEGIN MX_GPIO_Init_1 */
 
   /* USER CODE END MX_GPIO_Init_1 */
 
   /* GPIO Ports Clock Enable */
   __HAL_RCC_GPIOA_CLK_ENABLE();
+
+  /*Configure GPIO pin Output Level */
+  HAL_GPIO_WritePin(GPIOA, GPIO_PIN_1, GPIO_PIN_RESET);
+
+  /*Configure GPIO pin : PA1 */
+  GPIO_InitStruct.Pin = GPIO_PIN_1;
+  GPIO_InitStruct.Mode = GPIO_MODE_OUTPUT_PP;
+  GPIO_InitStruct.Pull = GPIO_NOPULL;
+  GPIO_InitStruct.Speed = GPIO_SPEED_FREQ_LOW;
+  HAL_GPIO_Init(GPIOA, &GPIO_InitStruct);
 
   /* USER CODE BEGIN MX_GPIO_Init_2 */
 
