@@ -2,26 +2,30 @@
 
 ## Overview
 
-TVMS (TrailBox Vehicle Monitoring System) is an IoT-based monitoring platform designed to collect sensor data, transmit it through a cloud communication layer and visualize it on a real-time dashboard.
+TVMS (TrailBox Vehicle Monitoring System) is an IoT-based real-time monitoring platform designed to acquire sensor data using STM32, transmit it through ESP32 using MQTT, and visualize it on a live dashboard.
+
+The platform supports environmental monitoring, device health monitoring and cloud-based data visualization.
 
 ---
 
-## V1 Architecture
+## V2.0.0 Architecture
 
 ```text
-Sensor
-  │
-  ▼
-STM32F407
-  │ UART
-  ▼
-ESP32
-  │ MQTT
-  ▼
-HiveMQ Cloud
-  │
-  ▼
-Web Dashboard
+LDR Sensor
+      │
+DHT11 Sensor
+      │
+      ▼
+ STM32F407
+      │ UART
+      ▼
+ ESP32 MQTT Gateway
+      │ MQTT over TLS
+      ▼
+ HiveMQ Cloud
+      │
+      ▼
+ TVMS Dashboard
 ```
 
 ---
@@ -32,20 +36,40 @@ Web Dashboard
 
 Responsibilities:
 
-* Sensor interfacing
-* ADC data acquisition
-* Data processing
-* UART transmission
+* LDR data acquisition using ADC
+* DHT11 temperature monitoring
+* DHT11 humidity monitoring
+* Sensor data processing
+* Hardware timer-based sampling
+* UART communication with ESP32
+
+Generated Data:
+
+```text
+LDR:3,TEMP:30.8,HUM:61
+```
 
 ---
 
-### ESP32
+### ESP32 MQTT Gateway
 
 Responsibilities:
 
-* Receive data from STM32
+* Receive sensor data through UART
+* Parse sensor values
 * Connect to WiFi
-* Publish data to MQTT broker
+* Connect to HiveMQ Cloud
+* Publish sensor values to MQTT topics
+* Device heartbeat monitoring
+
+Published Topics:
+
+```text
+talktrail/vehicle/ldr
+talktrail/vehicle/temp
+talktrail/vehicle/humidity
+talktrail/vehicle/status
+```
 
 ---
 
@@ -54,63 +78,99 @@ Responsibilities:
 Responsibilities:
 
 * MQTT message broker
+* Secure device communication
 * Real-time message delivery
-* Device communication layer
+* Dashboard integration
 
 ---
 
-### Web Dashboard
+### TVMS Dashboard
 
 Responsibilities:
 
 * Subscribe to MQTT topics
 * Display live sensor values
-* Provide monitoring interface
+* Display device status
+* Online/Offline monitoring
+* Activity feed generation
+* Real-time visualization
+
+Dashboard Cards:
+
+* LDR Monitoring
+* Temperature Monitoring
+* Humidity Monitoring
+* Device Status
+* MQTT Status
 
 ---
 
 ## Data Flow
 
-1. Sensor value is read by STM32.
-2. STM32 sends the value to ESP32 using UART.
-3. ESP32 publishes the value to HiveMQ Cloud.
-4. Dashboard subscribes to the MQTT topic.
-5. Live value is displayed to the user.
+1. STM32 reads LDR and DHT11 sensor data.
+2. STM32 formats the sensor data string.
+3. STM32 sends data to ESP32 through UART.
+4. ESP32 parses the received data.
+5. ESP32 publishes sensor values to MQTT topics.
+6. HiveMQ Cloud distributes MQTT messages.
+7. Dashboard receives updates and displays live values.
+
+---
+
+## MQTT Topics
+
+```text
+talktrail/vehicle/ldr
+talktrail/vehicle/temp
+talktrail/vehicle/humidity
+talktrail/vehicle/status
+```
 
 ---
 
 ## Current Version
 
-TVMS V1.0
+TVMS V2.0.0
 
 Implemented:
 
-* STM32 UART communication
-* ESP32 MQTT publishing
-* HiveMQ Cloud integration
-* Real-time dashboard
+* LDR Monitoring
+* Temperature Monitoring
+* Humidity Monitoring
+* UART Communication
+* MQTT Integration
+* Device Heartbeat Monitoring
+* Online/Offline Detection
+* Real-Time Dashboard
+* Multi-Sensor Architecture
 
 ---
 
-## Future Architecture
+## Future Roadmap
 
-### V2
+### V3.0.0
 
-* Multiple sensors
-* Improved security
-* Multiple devices
+* Historical Data Logging
+* Database Integration
+* Analytics Dashboard
 
-### V3
+### V4.0.0
 
-* Database integration
-* Historical analytics
+* CAN Bus Integration
+* Vehicle Telemetry
+* Advanced Monitoring
 
-### V4
+### V5.0.0
 
-* CAN communication
-* Multiple STM32 nodes
+* Multi-Vehicle Monitoring
+* Fleet Dashboard
+* Mobile Application Expansion
 
-### V5
+---
 
-* Production-ready vehicle monitoring platform
+## Author
+
+Tanmay Bhosle
+
+TrailBox Vehicle Monitoring System (TVMS)
 
