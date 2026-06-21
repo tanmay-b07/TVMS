@@ -8,14 +8,19 @@ The project demonstrates end-to-end sensor data acquisition, cloud communication
 
 ## Version
 
-Current Release: **V1.0.3**
+Current Release: **V2.0.0**
 
 Status: **Released**
 
 ---
 
 ## Features
-
+* Multi-sensor monitoring
+* DHT11 temperature monitoring
+* DHT11 humidity monitoring
+* Dedicated MQTT topics
+* Enhanced dashboard UI
+* Activity feed logging
 * STM32F407 sensor data acquisition
 * Non-blocking firmware architecture
 * Timer-based sensor processing
@@ -36,23 +41,28 @@ Status: **Released**
 ## System Architecture
 
 ```text
-STM32F407
-     │
-     │ UART
-     ▼
-ESP32
-     │
-     ├── LDR Data
-     └── Heartbeat Status
-     │
-     ▼
-HiveMQ Cloud
-     │
-     ▼
-Web Dashboard
-     │
-     ▼
-Android App
+LDR Sensor
+DHT11 Sensor
+      │
+      ▼
+ STM32F407
+      │ UART
+      ▼
+ ESP32 MQTT Gateway
+      │
+      ├── talktrail/vehicle/ldr
+      ├── talktrail/vehicle/temp
+      ├── talktrail/vehicle/humidity
+      └── talktrail/vehicle/status
+      │
+      ▼
+ HiveMQ Cloud
+      │
+      ▼
+ TVMS Dashboard
+      │
+      ▼
+ Android App
 ```
 
 ---
@@ -61,10 +71,10 @@ Android App
 
 ### Hardware
 
-* STM32F407
-* ESP32
+* STM32F407 Discovery
+* ESP32 DevKit
 * LDR Sensor
-
+* DHT11 Sensor
 ### Software
 
 * STM32CubeIDE
@@ -132,10 +142,46 @@ TVMS/
 * Reduced firmware latency
 * Enhanced firmware stability
 
+### V2.0.0
+
+* Multi-sensor monitoring
+* Temperature monitoring
+* Humidity monitoring
+* Dedicated MQTT topics
+* Enhanced dashboard UI
+* Live activity feed
+* Improved STM32 firmware
+* Improved ESP32 gateway
+* Real-time environmental monitoring
+
 ---
 
 ## Release History
 
+### V2.0.0 - Multi Sensor Monitoring Platform
+
+Added:
+
+* DHT11 integration
+* Temperature monitoring
+* Humidity monitoring
+* Dedicated MQTT topics
+* Dashboard redesign
+* Multi-sensor activity feed
+
+Improved:
+
+* STM32 firmware
+* ESP32 MQTT gateway
+* Dashboard visualization
+
+MQTT Topics:
+
+* talktrail/vehicle/ldr
+* talktrail/vehicle/temp
+* talktrail/vehicle/humidity
+* talktrail/vehicle/status
+---
 ### V1.0.3 - Non-Blocking Firmware Upgrade
 
 Added:
@@ -210,17 +256,6 @@ No changes:
 
 ## Roadmap
 
-### V2.0
-
-* Multiple sensor support
-* Temperature monitoring
-* Humidity monitoring
-* Voltage monitoring
-* Current monitoring
-* Multi-device dashboard support
-* Improved dashboard UI
-* Secure credential handling
-* Scalable IoT architecture
 
 ### V3.0
 
