@@ -67,7 +67,7 @@ border:1px solid #00ff8840;
 
 .grid{
 display:grid;
-grid-template-columns:2fr 1fr;
+grid-template-columns:3fr 1fr;
 gap:24px;
 }
 
@@ -93,7 +93,7 @@ color:#9a9a9a;
 }
 
 .value{
-font-size:140px;
+font-size:90px;
 font-weight:900;
 line-height:1;
 margin:20px 0;
@@ -210,10 +210,11 @@ TrailBox Vehicle Monitoring System
 
 <div class="grid">
 
-<div class="card main-card">
+<div style="display:grid;grid-template-columns:repeat(3,1fr);gap:24px;">
 
+<div class="card main-card">
 <div class="label">
-Current LDR Value
+LDR Value
 </div>
 
 <div class="value" id="sensorValue">
@@ -222,7 +223,38 @@ Current LDR Value
 
 <div class="status">
 <div class="dot"></div>
-Receiving Live Data
+Live Data
+</div>
+</div>
+
+<div class="card main-card">
+<div class="label">
+Temperature
+</div>
+
+<div class="value" id="tempValue">
+--
+</div>
+
+<div class="status">
+<div class="dot"></div>
+°C
+</div>
+</div>
+
+<div class="card main-card">
+<div class="label">
+Humidity
+</div>
+
+<div class="value" id="humValue">
+--
+</div>
+
+<div class="status">
+<div class="dot"></div>
+%
+</div>
 </div>
 
 </div>
@@ -273,19 +305,22 @@ Live Activity Feed
 </div>
 
 <div class="footer">
-Trailbox IoT Dashboard • Version 1
+Trailbox IoT Dashboard • Version 1.0.3
 </div>
 
 </div>
-
 <script>
 let lastHeartbeat=0;
 
+let currentLdr = "--";
+let currentTemp = "--";
+let currentHum = "--";
+
 const client = mqtt.connect(
-'wss://YOUR_URL_HERE.hivemq.cloud:8884/mqtt',
+'wss://__your_server__/mqtt',
 {
-username:'YOUR_USER_NAME',
-password:'YOUR_PASSWORD'
+username:'__username__',
+password:'__password__'
 });
 
 client.on('connect',()=>{
@@ -295,53 +330,74 @@ document.getElementById(
 ).innerText='Connected';
 
 client.subscribe('talktrail/vehicle/ldr');
+client.subscribe('talktrail/vehicle/temp');
+client.subscribe('talktrail/vehicle/humidity');
 client.subscribe('talktrail/vehicle/status');
+
 
 });
 
 client.on('message',(topic,message)=>{
-if(topic === 'talktrail/vehicle/status')
-{
-lastHeartbeat = Date.now();
-
-document.getElementById(
-'deviceStatus'
-).innerText='🟢 Online';
-
-return;
-}
 
 const value = message.toString();
 
-document.getElementById(
-'sensorValue'
-).innerText = value;
+if(topic === 'talktrail/vehicle/status')
+{
+    lastHeartbeat = Date.now();
+
+    document.getElementById(
+    'deviceStatus'
+    ).innerText='🟢 Online';
+
+    return;
+}
+
+if(topic === 'talktrail/vehicle/ldr')
+{
+    currentLdr = value;
+    document.getElementById('sensorValue').innerText = value;
+}
+
+if(topic === 'talktrail/vehicle/temp')
+{
+    currentTemp = value;
+    document.getElementById('tempValue').innerText = value;
+}
+
+if(topic === 'talktrail/vehicle/humidity')
+{
+    currentHum = value;
+    document.getElementById('humValue').innerText = value;
+}
 
 document.getElementById(
 'lastUpdate'
 ).innerText =
 new Date().toLocaleTimeString();
 
-const feed =
-document.getElementById('feed');
+const feed = document.getElementById('feed');
 
-const item =
-document.createElement('div');
-
-item.className='feed-item';
-
-item.innerHTML =
-'<span>'+value+'</span><span>'
-+new Date().toLocaleTimeString()+
-'</span>';
-
-feed.prepend(item);
-
-if(feed.children.length > 10)
+if(topic === 'talktrail/vehicle/humidity')
 {
-feed.removeChild(
-feed.lastChild
-);
+    const item = document.createElement('div');
+
+    item.className = 'feed-item';
+
+    item.innerHTML =
+    '<span>' +
+    'LDR: ' + currentLdr +
+    ' | TEMP: ' + currentTemp +
+    ' | HUM: ' + currentHum +
+    '</span><span>' +
+    new Date().toLocaleTimeString() +
+    '</span>';
+
+    feed.prepend(item);
+
+    if(feed.children.length > 20)
+    {
+        feed.removeChild(feed.lastChild);
+    }
 }
 
 });
@@ -355,6 +411,13 @@ Date.now()-lastHeartbeat > 10000
 document.getElementById(
 'deviceStatus'
 ).innerText='🔴 Offline';
+ document.getElementById('sensorValue').innerText='--';
+    document.getElementById('tempValue').innerText='--';
+    document.getElementById('humValue').innerText='--';
+
+    currentLdr = "--";
+    currentTemp = "--";
+    currentHum = "--";
 }
 
 },1000);

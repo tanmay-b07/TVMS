@@ -6,7 +6,9 @@ The dashboard provides real-time monitoring of sensor data and device connectivi
 
 ## Features
 
-* Real-time sensor monitoring
+* Real-time LDR Monitoring
+* Real-time Temperature Monitoring
+* Real-time Humidity Monitoring
 * MQTT-based live updates
 * Responsive user interface
 * Device status visualization
@@ -23,9 +25,11 @@ The dashboard provides real-time monitoring of sensor data and device connectivi
 
 ```text
 talktrail/vehicle/ldr
+talktrail/vehicle/temp
+talktrail/vehicle/humidity
 ```
 
-Receives live LDR sensor values from the ESP32 gateway.
+Receives live sensor values from the ESP32 MQTT Gateway.
 
 ### Device Status
 
@@ -45,9 +49,11 @@ online
 
 ## Dashboard Components
 
-### Main Display
+### Sensor Cards
 
-* Current LDR value
+* Current LDR Value
+* Current Temperature
+* Current Humidity
 * Real-time updates
 
 ### Device Information
@@ -59,14 +65,19 @@ online
 
 ### Activity Feed
 
-* Live MQTT message feed
-* Recent sensor updates
+Displays combined sensor updates in the format:
+
+```text
+LDR:2 | TEMP:30.8 | HUM:61
+```
+
+with timestamped entries.
 
 ---
 
 ## Online/Offline Detection
 
-The dashboard monitors heartbeat messages published by the ESP32 gateway.
+The dashboard monitors heartbeat messages published by the ESP32 MQTT Gateway.
 
 Heartbeat Interval:
 
@@ -87,20 +98,45 @@ Status Indicators:
 🔴 Offline
 ```
 
+When the device goes offline:
+
+```text
+LDR  -> --
+TEMP -> --
+HUM  -> --
+```
+
 ---
 
 ## Technologies
 
-* HTML
-* CSS
+* HTML5
+* CSS3
 * JavaScript
 * MQTT.js
 
 ---
 
+## Communication Flow
+
+```text
+STM32F407
+   │
+   ▼
+ESP32 MQTT Gateway
+   │
+   ▼
+HiveMQ Cloud
+   │
+   ▼
+TVMS Dashboard
+```
+
+---
+
 ## Version
 
-TVMS V1.0.2
+TVMS V2.0.0
 
 ## Status
 
