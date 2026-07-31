@@ -1,8 +1,8 @@
 /*
  * ina219.c
  *
- *  Created on: Feb 9, 2025
- *      Author: ROUNAK
+ *  Created on: JUL 21, 2026
+ *      Author: Tanmay
  */
 
 
@@ -54,3 +54,4 @@ HAL_StatusTypeDef INA219_WriteReg(I2C_HandleTypeDef *hi2c1, uint8_t reg, uint16_
 	tx_data[1] = data & 0xFF;
 	return HAL_I2C_Mem_Write(hi2c1, INA219_I2C_ADDRESS << 1, reg, 1, tx_data, 2, 1000);
 }
+
