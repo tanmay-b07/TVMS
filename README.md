@@ -1,95 +1,98 @@
 # TVMS - TrailBox Vehicle Monitoring System
 
-TVMS (TrailBox Vehicle Monitoring System) is a real-time IoT monitoring platform built using STM32F407, ESP32, MQTT and a web dashboard.
+TVMS (TrailBox Vehicle Monitoring System) is a modular real-time vehicle monitoring platform built using STM32F407, CAN Bus, ESP32, MQTT and Flask.
 
-The project demonstrates end-to-end sensor data acquisition, cloud communication and real-time visualization. This release serves as the foundation for future CAN-based vehicle telemetry and monitoring systems.
+The project demonstrates end-to-end embedded communication, sensor data acquisition, CAN-based networking, wireless MQTT communication and real-time dashboard visualization. TVMS is designed as a scalable platform for future vehicle telemetry and fleet monitoring applications.
 
 ---
 
-## Version
+# Version
 
-Current Release: **V2.0.0**
+Current Release: **V3.1.0**
 
 Status: **Released**
 
 ---
 
-## Features
-* Multi-sensor monitoring
-* DHT11 temperature monitoring
-* DHT11 humidity monitoring
-* Dedicated MQTT topics
-* Enhanced dashboard UI
-* Activity feed logging
-* STM32F407 sensor data acquisition
-* Non-blocking firmware architecture
-* Timer-based sensor processing
-* UART communication between STM32 and ESP32
-* ESP32 MQTT publishing
-* HiveMQ Cloud integration
-* Real-time dashboard
-* Live sensor monitoring
-* Android companion application
-* Mobile dashboard access
-* Device heartbeat monitoring
-* Online/Offline device detection
-* Device status dashboard card
-* End-to-end IoT data flow
+# Features
+
+- Modular sensor driver architecture
+- DHT22 driver
+- INA219 driver
+- HX710B driver
+- LIS3DSH driver
+- STM32 TX project architecture
+- Custom reusable driver library
+- Multi-sensor platform foundation
+- CAN-ready firmware architecture
+- Non-blocking firmware design
+- Timer-based processing
+- MQTT-ready architecture
+- Real-time IoT platform
 
 ---
 
-## System Architecture
+# System Architecture
 
 ```text
-LDR Sensor
-DHT11 Sensor
-      │
-      ▼
- STM32F407
-      │ UART
-      ▼
- ESP32 MQTT Gateway
-      │
-      ├── talktrail/vehicle/ldr
-      ├── talktrail/vehicle/temp
-      ├── talktrail/vehicle/humidity
-      └── talktrail/vehicle/status
-      │
-      ▼
- HiveMQ Cloud
-      │
-      ▼
- TVMS Dashboard
-      │
-      ▼
- Android App
+Sensors (SPI / I2C / Digital)
+        │
+        ▼
+ STM32F407 (TX Node)
+        │
+ Built-in CAN Peripheral
+        │
+ CJMCU-2551 CAN Transceiver
+        │
+============= CAN Bus =============
+        │
+ CJMCU-2551 CAN Transceiver
+        │
+ STM32F407 (RX Node)
+        │
+ UART
+        │
+ ESP32 Gateway
+        │
+ MQTT Broker
+        │
+ Flask Dashboard
+        │
+ Android Application
 ```
 
 ---
 
-## Technology Stack
+# Technology Stack
 
-### Hardware
+## Hardware
 
-* STM32F407 Discovery
-* ESP32 DevKit
-* LDR Sensor
-* DHT11 Sensor
-### Software
+- STM32F407 Discovery
+- ESP32 DevKit
+- CJMCU-2551 CAN Transceiver
+- DHT22 Sensor
+- INA219 Current & Voltage Monitor
+- HX710B Pressure Sensor
+- LIS3DSH Accelerometer
 
-* STM32CubeIDE
-* STM32CubeMX
-* Arduino IDE
-* HiveMQ Cloud
-* HTML
-* CSS
-* JavaScript
-* MQTT.js
-* MIT App Inventor
+## Software
+
+- STM32CubeIDE
+- STM32CubeMX
+- Arduino IDE
+- Embedded C (STM32 HAL)
+- MQTT
+- HiveMQ / Mosquitto
+- HTML
+- CSS
+- JavaScript
+- Flask
+- SQLite
+- MIT App Inventor
 
 ---
 
-## Project Structure
+# Project Structure
 
 ```text
 TVMS/
@@ -99,196 +102,167 @@ TVMS/
 │   ├── screenshots/
 │   └── README.md
 │
-├── stm32/
+├── stm32_tx/
+│   ├── Core/
+│   ├── Drivers/
+│   ├── Drivers_Custom/
+│   │   ├── dht22/
+│   │   ├── hx710b/
+│   │   ├── ina219/
+│   │   └── lis3dsh/
+│   └── README.md
+│
 ├── esp32/
+│
 ├── dashboard/
-├── screenshots/
+│
 ├── docs/
+│
+├── screenshots/
+│
 └── README.md
 ```
 
 ---
 
-## Implemented Features
+# Implemented Features
 
-### V1.0.0
+## V3.1.0
 
-* Sensor value acquisition using STM32 ADC
-* UART communication
-* ESP32 MQTT gateway
-* Cloud connectivity through HiveMQ
-* Real-time dashboard updates
+### Added
 
-### V1.0.1
+- Modular sensor driver architecture
+- DHT22 driver
+- INA219 driver
+- HX710B driver
+- LIS3DSH driver
+- STM32 TX project structure
+- Custom driver library
+- Reusable firmware architecture
 
-* Android companion application
-* Mobile dashboard access
-* Improved monitoring accessibility
+### Improved
 
-### V1.0.2
-
-* Device heartbeat monitoring
-* Online/Offline device status detection
-* Automatic heartbeat publishing
-* Device status dashboard card
-* MQTT status topic support
-
-### V1.0.3
-
-* Non-blocking STM32 firmware architecture
-* Timer-based task scheduling
-* Improved sensor acquisition responsiveness
-* Improved UART communication handling
-* Reduced firmware latency
-* Enhanced firmware stability
-
-### V2.0.0
-
-* Multi-sensor monitoring
-* Temperature monitoring
-* Humidity monitoring
-* Dedicated MQTT topics
-* Enhanced dashboard UI
-* Live activity feed
-* Improved STM32 firmware
-* Improved ESP32 gateway
-* Real-time environmental monitoring
+- Code organization
+- Driver modularity
+- Firmware scalability
+- Project maintainability
 
 ---
 
-## Release History
+## V2.0.0
 
-### V2.0.0 - Multi Sensor Monitoring Platform
-
-Added:
-
-* DHT11 integration
-* Temperature monitoring
-* Humidity monitoring
-* Dedicated MQTT topics
-* Dashboard redesign
-* Multi-sensor activity feed
-
-Improved:
-
-* STM32 firmware
-* ESP32 MQTT gateway
-* Dashboard visualization
-
-MQTT Topics:
-
-* talktrail/vehicle/ldr
-* talktrail/vehicle/temp
-* talktrail/vehicle/humidity
-* talktrail/vehicle/status
----
-### V1.0.3 - Non-Blocking Firmware Upgrade
-
-Added:
-
-* Timer-based non-blocking processing
-* Improved firmware responsiveness
-* Better task scheduling architecture
-
-Improved:
-
-* Sensor acquisition performance
-* UART communication reliability
-* Overall firmware stability
-
-No changes:
-
-* Dashboard architecture
-* Android application
-* MQTT topics
-* HiveMQ Cloud integration
-
-MQTT Topics:
-
-* talktrail/vehicle/ldr
-* talktrail/vehicle/status
+- Multi-sensor monitoring
+- Temperature monitoring
+- Humidity monitoring
+- Dedicated MQTT topics
+- Enhanced dashboard
+- Activity feed
+- Improved firmware
+- ESP32 MQTT gateway
 
 ---
 
-### V1.0.2 - Device Heartbeat Monitoring
+## V1.0.3
 
-Added:
-
-* Device heartbeat monitoring
-* Online/Offline device detection
-* Device status dashboard card
-* Heartbeat MQTT topic
-* Automatic offline timeout detection
-
-MQTT Topics:
-
-* talktrail/vehicle/ldr
-* talktrail/vehicle/status
+- Non-blocking firmware
+- Timer scheduling
+- Firmware optimization
 
 ---
 
-### V1.0.1 - Android App Support
+## V1.0.2
 
-Added:
-
-* Android companion application
-* Mobile dashboard access
-
-No changes:
-
-* STM32 firmware
-* ESP32 firmware
-* MQTT architecture
-* Dashboard functionality
+- Device heartbeat monitoring
+- Online / Offline detection
 
 ---
 
-### V1.0.0 - Initial IoT Monitoring Platform
+## V1.0.1
 
-* STM32 ADC acquisition
-* UART communication
-* ESP32 MQTT gateway
-* HiveMQ Cloud integration
-* Real-time dashboard
-* GitHub documentation
+- Android companion application
 
 ---
 
-## Roadmap
+## V1.0.0
 
-
-### V3.0
-
-* Database integration
-* Historical data storage
-* Charts and analytics
-* Sensor history
-
-### V4.0
-
-* CAN bus communication
-* Multiple STM32 nodes
-* Vehicle telemetry network
-
-### V5.0
-
-* Production-ready TVMS platform
-* Advanced analytics
-* Alerts and notifications
-* Fleet monitoring
-* Complete vehicle monitoring ecosystem
+- STM32 ADC acquisition
+- UART communication
+- ESP32 MQTT gateway
+- HiveMQ integration
+- Live dashboard
 
 ---
 
-## Live Dashboard
+# Release History
+
+## V3.1.0 — Modular Sensor Driver Library
+
+### Added
+
+- DHT22 driver
+- INA219 driver
+- HX710B driver
+- LIS3DSH driver
+- STM32 TX firmware architecture
+- Custom driver library
+- Project restructuring
+
+### Improved
+
+- Driver modularity
+- Firmware organization
+- Reusable embedded architecture
+
+### No Changes
+
+- ESP32 firmware
+- MQTT communication
+- Dashboard
+- Android application
+
+---
+
+# Roadmap
+
+## V3.2
+
+- Sensor integration
+- STM32 TX firmware
+- CAN message generation
+
+## V3.3
+
+- STM32 RX firmware
+- CAN communication
+- TX-RX integration
+
+## V4.0
+
+- ESP32 gateway
+- MQTT communication
+- Flask backend
+- SQLite database
+- Dashboard
+- Android application
+
+## V5.0
+
+- Production-ready TVMS platform
+- Vehicle telemetry
+- Fleet monitoring
+- Alerts & notifications
+- Advanced analytics
+
+---
+
+# Live Dashboard
 
 https://v1dashboard.trailbox.in/release2.html
 
 ---
 
-## Author
+# Author
 
-Tanmay Bhosle
+**Tanmay Bhosle**
 
-Built under the TrailBox ecosystem.
-
+Built under the **TrailBox** ecosystem.
