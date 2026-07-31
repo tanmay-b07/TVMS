@@ -8,7 +8,7 @@ The project demonstrates end-to-end embedded communication, sensor data acquisit
 
 # Version
 
-Current Release: **V3.1.0**
+Current Release: **V3.2.0**
 
 Status: **Released**
 
@@ -16,15 +16,16 @@ Status: **Released**
 
 # Features
 
+- Complete STM32 TX firmware
+- Multi-sensor data acquisition
 - Modular sensor driver architecture
-- DHT22 driver
-- INA219 driver
-- HX710B driver
-- LIS3DSH driver
-- STM32 TX project architecture
+- DHT22 integration
+- INA219 integration
+- HX710B integration
+- LIS3DSH integration
+- CAN frame generation
+- CAN message transmission
 - Custom reusable driver library
-- Multi-sensor platform foundation
-- CAN-ready firmware architecture
 - Non-blocking firmware design
 - Timer-based processing
 - MQTT-ready architecture
@@ -113,19 +114,39 @@ TVMS/
 │   └── README.md
 │
 ├── esp32/
-│
 ├── dashboard/
-│
 ├── docs/
-│
 ├── screenshots/
-│
 └── README.md
 ```
 
 ---
 
 # Implemented Features
+
+## V3.2.0
+
+### Added
+
+- Complete STM32 TX firmware
+- Multi-sensor integration
+- DHT22 integration
+- INA219 integration
+- HX710B integration
+- LIS3DSH integration
+- CAN frame generation
+- CAN message transmission
+- Sensor scheduling
+
+### Improved
+
+- STM32 TX architecture
+- Driver integration
+- Firmware reliability
+- Code organization
+- CAN communication framework
+
+---
 
 ## V3.1.0
 
@@ -138,14 +159,12 @@ TVMS/
 - LIS3DSH driver
 - STM32 TX project structure
 - Custom driver library
-- Reusable firmware architecture
 
 ### Improved
 
 - Code organization
 - Driver modularity
 - Firmware scalability
-- Project maintainability
 
 ---
 
@@ -195,26 +214,26 @@ TVMS/
 
 # Release History
 
-## V3.1.0 — Modular Sensor Driver Library
+## V3.2.0 — Complete STM32 TX Firmware
 
 ### Added
 
-- DHT22 driver
-- INA219 driver
-- HX710B driver
-- LIS3DSH driver
-- STM32 TX firmware architecture
-- Custom driver library
-- Project restructuring
+- Complete STM32 TX firmware
+- Multi-sensor integration
+- CAN frame generation
+- CAN message transmission
+- Sensor scheduling
 
 ### Improved
 
-- Driver modularity
-- Firmware organization
-- Reusable embedded architecture
+- Firmware architecture
+- Driver integration
+- Code maintainability
+- CAN transmission framework
 
 ### No Changes
 
+- STM32 RX firmware
 - ESP32 firmware
 - MQTT communication
 - Dashboard
@@ -224,16 +243,12 @@ TVMS/
 
 # Roadmap
 
-## V3.2
-
-- Sensor integration
-- STM32 TX firmware
-- CAN message generation
-
 ## V3.3
 
 - STM32 RX firmware
-- CAN communication
+- CAN message reception
+- CAN frame decoding
+- UART communication
 - TX-RX integration
 
 ## V4.0
