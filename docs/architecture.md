@@ -2,175 +2,214 @@
 
 ## Overview
 
-TVMS (TrailBox Vehicle Monitoring System) is an IoT-based real-time monitoring platform designed to acquire sensor data using STM32, transmit it through ESP32 using MQTT, and visualize it on a live dashboard.
+TVMS (TrailBox Vehicle Monitoring System) is a modular real-time vehicle monitoring platform designed around a distributed embedded architecture.
 
-The platform supports environmental monitoring, device health monitoring and cloud-based data visualization.
+The system acquires sensor data using the STM32 TX node, transmits it over the CAN bus, receives and decodes the messages using the STM32 RX node, forwards the data to the ESP32 gateway through UART, publishes it via MQTT and visualizes the information using a Flask-based web dashboard and Android application.
 
 ---
 
-## V2.0.0 Architecture
+## System Architecture
 
 ```text
-LDR Sensor
-      │
-DHT11 Sensor
-      │
-      ▼
- STM32F407
-      │ UART
-      ▼
- ESP32 MQTT Gateway
-      │ MQTT over TLS
-      ▼
- HiveMQ Cloud
-      │
-      ▼
- TVMS Dashboard
+                Sensors
+ (DHT22, INA219, HX710B, LIS3DSH)
+                     │
+                     ▼
+          ┌───────────────────┐
+          │   STM32 TX Node   │
+          │ Sensor Processing │
+          │ CAN Frame Creator │
+          └───────────────────┘
+                     │
+             Built-in CAN
+                     │
+           CJMCU-2551 Transceiver
+                     │
+════════════════ CAN Bus ════════════════
+                     │
+           CJMCU-2551 Transceiver
+                     │
+          ┌───────────────────┐
+          │   STM32 RX Node   │
+          │ CAN Frame Decode  │
+          │ UART Forwarding   │
+          └───────────────────┘
+                     │
+                    UART
+                     │
+                     ▼
+          ┌───────────────────┐
+          │   ESP32 Gateway   │
+          │ MQTT Publisher    │
+          └───────────────────┘
+                     │
+                 MQTT Broker
+          (HiveMQ / Mosquitto)
+                     │
+                     ▼
+          ┌───────────────────┐
+          │   Flask Backend   │
+          │ SQLite Database   │
+          └───────────────────┘
+                     │
+          ┌──────────┴──────────┐
+          ▼                     ▼
+   Web Dashboard         Android Application
 ```
 
 ---
 
-## Component Responsibilities
+# Component Responsibilities
 
-### STM32F407
+## STM32 TX Node
 
-Responsibilities:
+Responsibilities
 
-* LDR data acquisition using ADC
-* DHT11 temperature monitoring
-* DHT11 humidity monitoring
-* Sensor data processing
-* Hardware timer-based sampling
-* UART communication with ESP32
+- Initialize all sensors
+- Read sensor values
+- Process sensor data
+- Generate CAN frames
+- Transmit CAN messages
 
-Generated Data:
+Connected Sensors
 
-```text
-LDR:3,TEMP:30.8,HUM:61
-```
-
----
-
-### ESP32 MQTT Gateway
-
-Responsibilities:
-
-* Receive sensor data through UART
-* Parse sensor values
-* Connect to WiFi
-* Connect to HiveMQ Cloud
-* Publish sensor values to MQTT topics
-* Device heartbeat monitoring
-
-Published Topics:
-
-```text
-talktrail/vehicle/ldr
-talktrail/vehicle/temp
-talktrail/vehicle/humidity
-talktrail/vehicle/status
-```
+- DHT22
+- INA219
+- HX710B
+- LIS3DSH
 
 ---
 
-### HiveMQ Cloud
+## STM32 RX Node
 
-Responsibilities:
+Responsibilities
 
-* MQTT message broker
-* Secure device communication
-* Real-time message delivery
-* Dashboard integration
-
----
-
-### TVMS Dashboard
-
-Responsibilities:
-
-* Subscribe to MQTT topics
-* Display live sensor values
-* Display device status
-* Online/Offline monitoring
-* Activity feed generation
-* Real-time visualization
-
-Dashboard Cards:
-
-* LDR Monitoring
-* Temperature Monitoring
-* Humidity Monitoring
-* Device Status
-* MQTT Status
+- Receive CAN messages
+- Decode CAN frames
+- Process received data
+- Generate UART packets
+- Forward data to ESP32
 
 ---
 
-## Data Flow
+## ESP32 Gateway
 
-1. STM32 reads LDR and DHT11 sensor data.
-2. STM32 formats the sensor data string.
-3. STM32 sends data to ESP32 through UART.
-4. ESP32 parses the received data.
-5. ESP32 publishes sensor values to MQTT topics.
-6. HiveMQ Cloud distributes MQTT messages.
-7. Dashboard receives updates and displays live values.
+Responsibilities
 
----
-
-## MQTT Topics
-
-```text
-talktrail/vehicle/ldr
-talktrail/vehicle/temp
-talktrail/vehicle/humidity
-talktrail/vehicle/status
-```
+- Receive UART data
+- Connect to Wi-Fi
+- Connect to MQTT broker
+- Publish sensor values
+- Device heartbeat monitoring
 
 ---
 
-## Current Version
+## MQTT Broker
 
-TVMS V2.0.0
+Responsibilities
 
-Implemented:
+- Route MQTT messages
+- Secure communication
+- Real-time message delivery
 
-* LDR Monitoring
-* Temperature Monitoring
-* Humidity Monitoring
-* UART Communication
-* MQTT Integration
-* Device Heartbeat Monitoring
-* Online/Offline Detection
-* Real-Time Dashboard
-* Multi-Sensor Architecture
+Supported Brokers
+
+- HiveMQ Cloud
+- Eclipse Mosquitto
 
 ---
 
-## Future Roadmap
+## Flask Backend
 
-### V3.0.0
+Responsibilities
 
-* Historical Data Logging
-* Database Integration
-* Analytics Dashboard
-
-### V4.0.0
-
-* CAN Bus Integration
-* Vehicle Telemetry
-* Advanced Monitoring
-
-### V5.0.0
-
-* Multi-Vehicle Monitoring
-* Fleet Dashboard
-* Mobile Application Expansion
+- Subscribe to MQTT topics
+- Process incoming sensor data
+- Store data in SQLite
+- Provide dashboard APIs
 
 ---
 
-## Author
+## Dashboard
 
-Tanmay Bhosle
+Responsibilities
+
+- Live sensor monitoring
+- Device status monitoring
+- Activity feed
+- Historical charts
+- Fleet monitoring (Future)
+
+---
+
+## Android Application
+
+Responsibilities
+
+- Mobile monitoring
+- Device status
+- Live sensor values
+- Remote accessibility
+
+---
+
+# End-to-End Data Flow
+
+1. Sensors acquire physical measurements.
+2. STM32 TX reads and processes sensor data.
+3. CAN frames are generated.
+4. CAN frames are transmitted over the CAN bus.
+5. STM32 RX receives and decodes CAN frames.
+6. UART forwards decoded data to ESP32.
+7. ESP32 publishes sensor data using MQTT.
+8. MQTT broker distributes messages.
+9. Flask backend processes incoming data.
+10. Dashboard and Android application display live sensor values.
+
+---
+
+# Current Architecture
+
+Current Release
+
+**TVMS V3.3.0**
+
+Implemented
+
+- STM32 TX firmware
+- STM32 RX firmware
+- Multi-sensor acquisition
+- CAN communication
+- UART forwarding
+- ESP32 gateway
+- MQTT-ready architecture
+
+---
+
+# Future Enhancements
+
+## V4.0
+
+- Flask backend
+- SQLite database
+- Historical data logging
+- Dashboard analytics
+- Android integration
+
+## V5.0
+
+- Production-ready TVMS platform
+- Multi-node CAN network
+- Vehicle telemetry
+- Fleet monitoring
+- Alerts & Notifications
+
+---
+
+# Author
+
+**Tanmay Bhosle**
 
 TrailBox Vehicle Monitoring System (TVMS)
 
+Built under the TrailBox ecosystem.
