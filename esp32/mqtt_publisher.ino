@@ -1,45 +1,41 @@
 #include <WiFi.h>
-#include <WiFiClientSecure.h>
 #include <PubSubClient.h>
+#include <ArduinoJson.h>
 
 #define RXD2 16
-const char* ssid = "your_wifi_ssid";
-const char* password = "your_wifi_pass";
+#define TXD2 17
 
-const char* mqtt_server = "__server__address";
-const char* mqtt_user = "__username__";
-const char* mqtt_pass = "__pass__";
+// ---------------- WiFi ----------------
 
-WiFiClientSecure espClient;
+const char* ssid = "wifi";
+const char* password = "pass";
+
+// ---------------- MQTT ----------------
+
+const char* mqtt_server = "ip_addr";
+const int mqtt_port = 1883;
+
+#define TOPIC_TEMP      "talktrail/vehicle/temp"
+#define TOPIC_ACCEL     "talktrail/vehicle/accel"
+#define TOPIC_PRESSURE  "talktrail/vehicle/pressure"
+#define TOPIC_BATTERY   "talktrail/vehicle/battery"
+#define TOPIC_STATUS    "talktrail/vehicle/status"
+
+WiFiClient espClient;
 PubSubClient client(espClient);
 
-String data = "";
-unsigned long lastHeartbeat = 0;
-const unsigned long HEARTBEAT_INTERVAL = 5000;
+String uartData = "";
 
-void connectMQTT()
-{
-  Serial.println("Trying MQTT Connection...");
+unsigned long heartbeatTimer = 0;
 
-  while (!client.connected())
-  {
-    if (client.connect("ESP32_Client", mqtt_user, mqtt_pass))
-    {
-      Serial.println("MQTT Connected");
-    }
-    else
-    {
-      Serial.print("Failed. State=");
-      Serial.println(client.state());
-      delay(2000);
-    }
-  }
-}
-void setup()
+// ------------------------------------------------------------
+
+void connectWiFi()
 {
-  Serial.begin(115200);
-  Serial2.begin(115200, SERIAL_8N1, RXD2, -1);
-  Serial.println("\nTVMS:Trailbox Vechicle Monitering System");
+  if (WiFi.status() == WL_CONNECTED)
+    return;
+
+  Serial.println("\nConnecting WiFi...");
 
   WiFi.begin(ssid, password);
 
@@ -49,58 +45,91 @@ void setup()
     Serial.print(".");
   }
 
-  Serial.println("\nWiFi Connected");
-
-  espClient.setInsecure();
-
-  client.setServer(mqtt_server, 8883);
-
-  connectMQTT();
+  Serial.println();
+  Serial.println("WiFi Connected");
+  Serial.print("IP : ");
+  Serial.println(WiFi.localIP());
 }
 
-void loop()
+// ------------------------------------------------------------
+
+void reconnect()
 {
-  if (WiFi.status() != WL_CONNECTED)
+  while (!client.connected())
   {
-    Serial.println("WiFi Lost");
+    Serial.print("Connecting MQTT... ");
 
-    WiFi.reconnect();
-
-    while (WiFi.status() != WL_CONNECTED)
+    if (client.connect(
+          "TVMS_ESP32",
+          NULL,
+          NULL,
+          TOPIC_STATUS,
+          1,
+          true,
+          "offline"))
     {
-      delay(500);
-      Serial.print(".");
-    }
+      Serial.println("Connected");
 
-    Serial.println("\nWiFi Reconnected");
-  }
-
-  if (!client.connected())
-  {
-    Serial.print("MQTT Disconnected. State = ");
-    Serial.println(client.state());
-
-    connectMQTT();
-  }
-
-  client.loop();
-
-  if (millis() - lastHeartbeat >= HEARTBEAT_INTERVAL)
-  {
-    Serial.print("RSSI: ");
-    Serial.println(WiFi.RSSI());
-
-    if (client.publish("talktrail/vehicle/status", "online"))
-    {
-      Serial.println("Heartbeat Sent");
+      client.publish(TOPIC_STATUS,
+                     "online",
+                     true);
     }
     else
     {
-      Serial.println("Heartbeat Failed");
+      Serial.print("Failed : ");
+      Serial.println(client.state());
+      delay(2000);
     }
-
-    lastHeartbeat = millis();
   }
+}
+
+// ------------------------------------------------------------
+
+void heartbeat()
+{
+  if (millis() - heartbeatTimer >= 500)
+  {
+    heartbeatTimer = millis();
+
+    client.publish(TOPIC_STATUS,
+                   "online",
+                   true);
+
+    Serial.println("Heartbeat Sent");
+  }
+}
+
+// ------------------------------------------------------------
+
+void setup()
+{
+  Serial.begin(115200);
+
+  Serial2.begin(115200,
+                SERIAL_8N1,
+                RXD2,
+                TXD2);
+
+  connectWiFi();
+
+  client.setServer(mqtt_server,
+                   mqtt_port);
+  client.setKeepAlive(5);       // Detect disconnect in ~5-10 sec
+  client.setSocketTimeout(3);   
+}
+
+// ------------------------------------------------------------
+
+void loop()
+{
+  connectWiFi();
+
+  if (!client.connected())
+    reconnect();
+
+  client.loop();
+
+  heartbeat();
 
   while (Serial2.available())
   {
@@ -108,47 +137,127 @@ void loop()
 
     if (c == '\n')
     {
-      data.trim();
+      uartData.trim();
 
-      if (data.length() > 0)
+      if (uartData.length())
       {
-        Serial.print("Raw: ");
-        Serial.println(data);
+        Serial.print("UART : ");
+        Serial.println(uartData);
 
-        float ldr = 0;
-        float temp = 0;
-        float hum = 0;
+        StaticJsonDocument<256> doc;
 
-        sscanf(data.c_str(),
-               "LDR:%f,TEMP:%f,HUM:%f",
-               &ldr,
-               &temp,
-               &hum);
+        DeserializationError error =
+            deserializeJson(doc,
+                            uartData);
 
-        char buf[20];
+        if (!error)
+        {
+          const char *type = doc["type"];
 
-        dtostrf(ldr, 0, 0, buf);
-        client.publish("talktrail/vehicle/ldr", buf);
+          if (type == NULL)
+          {
+            Serial.println("Invalid JSON Type");
+            uartData = "";
+            continue;
+          }
 
-        dtostrf(temp, 0, 1, buf);
-        client.publish("talktrail/vehicle/temp", buf);
+          // -------- Sensor Handling Continues --------
+          // ---------------- Temperature ----------------
 
-        dtostrf(hum, 0, 1, buf);
-        client.publish("talktrail/vehicle/humidity", buf);
+          if (strcmp(type, "temp") == 0)
+          {
+            StaticJsonDocument<128> out;
 
-        Serial.printf(
-          "LDR=%.0f TEMP=%.1f HUM=%.1f\n",
-          ldr,
-          temp,
-          hum
-        );
+            out["temperature"] = doc["temperature"];
+            out["humidity"] = doc["humidity"];
+
+            char payload[128];
+            serializeJson(out, payload);
+
+            if (client.publish(TOPIC_TEMP, payload))
+            {
+              Serial.print("Published Temp : ");
+              Serial.println(payload);
+            }
+          }
+
+          // ---------------- Accelerometer ----------------
+
+          else if (strcmp(type, "accel") == 0)
+          {
+            StaticJsonDocument<128> out;
+
+            out["x"] = doc["x"];
+            out["y"] = doc["y"];
+            out["z"] = doc["z"];
+
+            char payload[128];
+            serializeJson(out, payload);
+
+            if (client.publish(TOPIC_ACCEL, payload))
+            {
+              Serial.print("Published Accel : ");
+              Serial.println(payload);
+            }
+          }
+
+          // ---------------- Pressure ----------------
+
+          else if (strcmp(type, "pressure") == 0)
+          {
+            StaticJsonDocument<128> out;
+
+            out["pressure"] = doc["value"];
+
+            char payload[128];
+            serializeJson(out, payload);
+
+            if (client.publish(TOPIC_PRESSURE, payload))
+            {
+              Serial.print("Published Pressure : ");
+              Serial.println(payload);
+            }
+          }
+
+          // ---------------- Battery ----------------
+
+          else if (strcmp(type, "battery") == 0)
+          {
+            StaticJsonDocument<128> out;
+
+            out["voltage"] = doc["voltage"];
+            out["current"] = doc["current"];
+
+            char payload[128];
+            serializeJson(out, payload);
+
+            if (client.publish(TOPIC_BATTERY, payload))
+            {
+              Serial.print("Published Battery : ");
+              Serial.println(payload);
+            }
+          }
+
+          // ---------------- Unknown Packet ----------------
+
+          else
+          {
+            Serial.print("Unknown Packet Type : ");
+            Serial.println(type);
+          }
+        }
+        else
+        {
+          Serial.print("JSON Error : ");
+          Serial.println(error.c_str());
+        }
       }
 
-      data = "";
+      uartData = "";
     }
     else
     {
-      data += c;
+      uartData += c;
     }
   }
 }

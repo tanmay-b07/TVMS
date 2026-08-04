@@ -1,139 +1,232 @@
 # ESP32 MQTT Gateway
 
-This directory contains the ESP32 firmware used as the communication gateway in the TVMS project.
+The ESP32 acts as the IoT communication gateway in the TrailBox Vehicle Monitoring System (TVMS).
 
-The ESP32 acts as a bridge between the STM32 microcontroller and HiveMQ Cloud, enabling real-time sensor data transmission, environmental monitoring and device status tracking.
-
-## Responsibilities
-
-* Receive sensor data from STM32 through UART
-* Parse LDR, Temperature and Humidity values
-* Connect to WiFi
-* Connect to HiveMQ Cloud using MQTT over TLS
-* Publish sensor data to dedicated MQTT topics
-* Transmit periodic device heartbeat messages
-* Support real-time dashboard monitoring
+It receives JSON sensor packets from the STM32 RX node through UART, parses the data and publishes it to dedicated MQTT topics. The gateway also manages device heartbeat monitoring and MQTT Last Will for online/offline status detection.
 
 ---
 
-## MQTT Topics
+# Version
 
-### Sensor Data
+Current Version: **V4.0.0**
+
+Status: **In Development**
+
+---
+
+# Overview
+
+The ESP32 bridges the embedded CAN network and the IoT platform.
+
+It receives decoded sensor data from the STM32 RX node, publishes it to the MQTT broker and enables real-time monitoring through the TVMS dashboard.
+
+---
+
+# Responsibilities
+
+- Receive JSON packets from STM32 RX over UART
+- Parse sensor data
+- Connect to Wi-Fi
+- Connect to MQTT Broker
+- Publish sensor values to dedicated MQTT topics
+- Publish device heartbeat
+- Support MQTT Last Will (Online / Offline detection)
+- Automatic Wi-Fi reconnection
+- Automatic MQTT reconnection
+
+---
+
+# Communication Flow
 
 ```text
-talktrail/vehicle/ldr
+STM32 TX
+     │
+     ▼
+CAN Bus
+     │
+     ▼
+STM32 RX
+     │
+ UART (USART2)
+     │
+     ▼
+ESP32 MQTT Gateway
+     │
+     ▼
+ MQTT Broker
+     │
+     ▼
+ Flask Backend
+     │
+     ▼
+ TVMS Dashboard
+```
+
+---
+
+# Supported Sensor Packets
+
+## Temperature & Humidity
+
+```json
+{
+  "type":"temp",
+  "temperature":30.5,
+  "humidity":65
+}
+```
+
+Published Topic
+
+```text
 talktrail/vehicle/temp
-talktrail/vehicle/humidity
 ```
 
-Published Values:
+---
 
-```text
-LDR Value
-Temperature Value
-Humidity Value
+## Accelerometer
+
+```json
+{
+  "type":"accel",
+  "x":120,
+  "y":-35,
+  "z":980
+}
 ```
 
-### Device Heartbeat
+Published Topic
 
 ```text
+talktrail/vehicle/accel
+```
+
+---
+
+## Pressure
+
+```json
+{
+  "type":"pressure",
+  "value":1024
+}
+```
+
+Published Topic
+
+```text
+talktrail/vehicle/pressure
+```
+
+---
+
+## Battery
+
+```json
+{
+  "type":"battery",
+  "voltage":12.45,
+  "current":1.28
+}
+```
+
+Published Topic
+
+```text
+talktrail/vehicle/battery
+```
+
+---
+
+# MQTT Topics
+
+```text
+talktrail/vehicle/temp
+talktrail/vehicle/accel
+talktrail/vehicle/pressure
+talktrail/vehicle/battery
 talktrail/vehicle/status
 ```
 
-Payload:
+---
+
+# Device Status Monitoring
+
+The gateway periodically publishes its status to MQTT.
+
+Online
 
 ```text
 online
 ```
 
----
-
-## UART Data Format
-
-Received from STM32:
+Offline
 
 ```text
-LDR:3,TEMP:30.8,HUM:61
+offline
 ```
 
-Parsed by ESP32 and published to individual MQTT topics.
+Features
+
+- MQTT Last Will & Testament (LWT)
+- Retained Status Messages
+- Heartbeat Monitoring
+- Online / Offline Detection
 
 ---
 
-## Heartbeat Monitoring
+# Heartbeat
 
-The ESP32 sends a heartbeat message every 5 seconds to indicate that the device is operational and connected to the MQTT broker.
-
-Heartbeat Interval:
+Heartbeat Interval
 
 ```text
 5 Seconds
 ```
 
-Purpose:
+Purpose
 
-* Device health monitoring
-* Online/Offline detection
-* Dashboard status updates
-* Future multi-device support
-
----
-
-## Development Environment
-
-* Arduino IDE
-* ESP32 Board Package
-* PubSubClient Library
-* WiFi Library
-* WiFiClientSecure
+- Device health monitoring
+- Connection verification
+- Dashboard status updates
 
 ---
 
-## Communication Flow
+# Development Environment
 
-```text
-STM32F407
-   │
-   │ UART
-   ▼
-ESP32 MQTT Gateway
-   │
-   ├── talktrail/vehicle/ldr
-   ├── talktrail/vehicle/temp
-   ├── talktrail/vehicle/humidity
-   └── talktrail/vehicle/status
-           │
-           ▼
-      HiveMQ Cloud
-           │
-           ▼
-      TVMS Dashboard
-```
+- Arduino IDE
+- ESP32 Arduino Core
+- PubSubClient
+- ArduinoJson
+- WiFi Library
 
 ---
 
-## Features
+# Features
 
-* Multi-Sensor MQTT Publishing
-* UART Data Parsing
-* Secure MQTT Communication (TLS)
-* Device Heartbeat Monitoring
-* Real-Time Data Streaming
-* Online/Offline Device Detection
+- UART JSON Parsing
+- Multi-Sensor MQTT Publishing
+- Automatic Wi-Fi Reconnection
+- Automatic MQTT Reconnection
+- Device Heartbeat
+- MQTT Last Will Support
+- Retained Device Status
+- Modular Topic-Based Architecture
 
 ---
 
-## Version
+# Upcoming
 
-TVMS V2.0.0
+- MQTT over TLS
+- HiveMQ Cloud Integration
+- Configuration File Support
+- OTA Firmware Updates
 
-## Status
+---
 
-Stable Release
+# Author
 
-## Author
-
-Tanmay Bhosle
+**Tanmay Bhosle**
 
 TrailBox Vehicle Monitoring System (TVMS)
 
+Built under the **TrailBox** ecosystem.
