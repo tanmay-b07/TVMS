@@ -1,150 +1,208 @@
 # TVMS Dashboard
 
-This directory contains the web dashboard for the TVMS project.
+The TVMS Dashboard provides real-time visualization of sensor data received from the embedded system.
 
-The dashboard provides real-time monitoring of sensor data and device connectivity using MQTT communication.
-
-## Features
-
-* Real-time LDR Monitoring
-* Real-time Temperature Monitoring
-* Real-time Humidity Monitoring
-* MQTT-based live updates
-* Responsive user interface
-* Device status visualization
-* Device heartbeat monitoring
-* Online/Offline device detection
-* Live activity feed
-* Automatic status updates
+It communicates with the Flask backend using REST APIs and displays live sensor values, historical charts and device status.
 
 ---
 
-## MQTT Topics
+# Version
 
-### Sensor Data
+Current Version: **V4.0.0**
 
-```text
-talktrail/vehicle/ldr
-talktrail/vehicle/temp
-talktrail/vehicle/humidity
-```
-
-Receives live sensor values from the ESP32 MQTT Gateway.
-
-### Device Status
-
-```text
-talktrail/vehicle/status
-```
-
-Receives heartbeat messages used for device health monitoring.
-
-Payload:
-
-```text
-online
-```
+Status: **In Development**
 
 ---
 
-## Dashboard Components
+# Overview
 
-### Sensor Cards
+The dashboard is the user interface of the TrailBox Vehicle Monitoring System (TVMS).
 
-* Current LDR Value
-* Current Temperature
-* Current Humidity
-* Real-time updates
-
-### Device Information
-
-* Device identification
-* MQTT connection status
-* Device online/offline status
-* Last update timestamp
-
-### Activity Feed
-
-Displays combined sensor updates in the format:
-
-```text
-LDR:2 | TEMP:30.8 | HUM:61
-```
-
-with timestamped entries.
+It periodically requests live sensor data from the Flask server and presents the information through interactive cards and charts.
 
 ---
 
-## Online/Offline Detection
+# Features
 
-The dashboard monitors heartbeat messages published by the ESP32 MQTT Gateway.
+- Real-Time Sensor Monitoring
+- Device Online / Offline Status
+- Temperature & Humidity Display
+- Pressure Monitoring
+- Battery Voltage & Current Monitoring
+- 3-Axis Accelerometer Visualization
+- Historical Data Charts
+- Automatic Live Refresh
+- Responsive User Interface
 
-Heartbeat Interval:
+---
+
+# Technology Stack
+
+- HTML5
+- CSS3
+- JavaScript
+- Bootstrap 5
+- Chart.js
+- Flask REST API
+
+---
+
+# Communication Flow
 
 ```text
-5 Seconds
-```
-
-Offline Timeout:
-
-```text
-10 Seconds
-```
-
-Status Indicators:
-
-```text
-🟢 Online
-🔴 Offline
-```
-
-When the device goes offline:
-
-```text
-LDR  -> --
-TEMP -> --
-HUM  -> --
+STM32 TX
+      │
+CAN Bus
+      │
+STM32 RX
+      │
+UART
+      │
+ESP32 Gateway
+      │
+MQTT Broker
+      │
+Flask Backend
+      │
+REST APIs
+      │
+Dashboard
 ```
 
 ---
 
-## Technologies
+# REST API Endpoints
 
-* HTML5
-* CSS3
-* JavaScript
-* MQTT.js
+## Live Sensor Data
+
+```text
+GET /api/live
+```
+
+Returns
+
+- Device Status
+- Temperature
+- Humidity
+- Pressure
+- Battery Voltage
+- Battery Current
+- Accelerometer Values
 
 ---
 
-## Communication Flow
+## Temperature History
 
 ```text
-STM32F407
-   │
-   ▼
-ESP32 MQTT Gateway
-   │
-   ▼
-HiveMQ Cloud
-   │
-   ▼
-TVMS Dashboard
+GET /api/temp
 ```
 
 ---
 
-## Version
+## Pressure History
 
-TVMS V2.0.0
+```text
+GET /api/pressure
+```
 
-## Status
+---
 
-Stable Release
+## Battery History
 
-## Author
+```text
+GET /api/battery
+```
 
-Tanmay Bhosle
+---
+
+## Accelerometer History
+
+```text
+GET /api/accel
+```
+
+---
+
+# Dashboard Components
+
+## Navigation Bar
+
+Displays
+
+- TVMS Title
+- System Clock
+- Device Status
+
+---
+
+## Live Sensor Cards
+
+- Temperature
+- Humidity
+- Pressure
+- Battery Voltage
+- Battery Current
+- Accelerometer
+
+---
+
+## Charts
+
+- Temperature History
+- Pressure History
+- Battery History
+- Accelerometer History
+
+---
+
+# Auto Refresh
+
+The dashboard periodically requests live sensor data from the Flask backend to provide near real-time updates.
+
+---
+
+# Project Structure
+
+```text
+dashboard/
+
+├── index.html
+├── static/
+│   ├── css/
+│   │   └── style.css
+│   ├── js/
+│   │   └── script.js
+│   └── images/
+└── README.md
+```
+
+---
+
+# Screenshots
+
+Dashboard screenshots are available in the project's `screenshots/` directory.
+
+---
+
+# Future Enhancements
+
+- Dark Mode
+- Multi-Device Dashboard
+- Live CAN Traffic Monitor
+- Historical Analytics
+- User Authentication
+- Alarm & Notification System
+- Export Sensor Data
+- Mobile Responsive Improvements
+
+---
+
+# Author
+
+**Tanmay Bhosle**
+
+Electronics & Telecommunication Engineer
 
 TrailBox Vehicle Monitoring System (TVMS)
 
+Built under the **TrailBox** ecosystem.

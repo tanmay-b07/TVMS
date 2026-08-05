@@ -1,436 +1,216 @@
 <!DOCTYPE html>
 <html lang="en">
+
 <head>
-<meta charset="UTF-8">
-<meta name="viewport" content="width=device-width, initial-scale=1.0">
-<title>Trailbox IoT Dashboard</title>
 
-<script src="https://unpkg.com/mqtt/dist/mqtt.min.js"></script>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
 
-<style>
+    <title>TVMS Dashboard</title>
 
-@import url('https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;700;900&display=swap');
+    <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.3/dist/css/bootstrap.min.css" rel="stylesheet">
 
-*{
-margin:0;
-padding:0;
-box-sizing:border-box;
-font-family:'Inter',sans-serif;
-}
+    <link rel="stylesheet"
+          href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.6.0/css/all.min.css">
 
-body{
-background:#050505;
-color:white;
-min-height:100vh;
-overflow-x:hidden;
-}
+    <link rel="stylesheet"
+          href="{{ url_for('static', filename='css/style.css') }}">
 
-.bg{
-position:fixed;
-inset:0;
-background:
-radial-gradient(circle at 20% 20%,rgba(0,255,180,.15),transparent 30%),
-radial-gradient(circle at 80% 70%,rgba(0,120,255,.15),transparent 30%);
-z-index:-1;
-}
+    <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
 
-.container{
-max-width:1300px;
-margin:auto;
-padding:40px 20px;
-}
-
-.header{
-display:flex;
-justify-content:space-between;
-align-items:center;
-margin-bottom:30px;
-}
-
-.logo{
-font-size:34px;
-font-weight:900;
-}
-
-.tag{
-color:#8a8a8a;
-margin-top:8px;
-}
-
-.live-badge{
-padding:10px 18px;
-border-radius:999px;
-background:#00ff8820;
-color:#00ff88;
-border:1px solid #00ff8840;
-}
-
-.grid{
-display:grid;
-grid-template-columns:3fr 1fr;
-gap:24px;
-}
-
-.card{
-background:rgba(255,255,255,.04);
-backdrop-filter:blur(20px);
-border:1px solid rgba(255,255,255,.08);
-border-radius:28px;
-padding:30px;
-}
-
-.main-card{
-display:flex;
-flex-direction:column;
-justify-content:center;
-align-items:center;
-min-height:420px;
-}
-
-.label{
-font-size:18px;
-color:#9a9a9a;
-}
-
-.value{
-font-size:90px;
-font-weight:900;
-line-height:1;
-margin:20px 0;
-text-shadow:0 0 40px rgba(0,255,150,.4);
-}
-
-.status{
-display:flex;
-gap:10px;
-align-items:center;
-color:#00ff88;
-}
-
-.dot{
-width:10px;
-height:10px;
-border-radius:50%;
-background:#00ff88;
-box-shadow:0 0 20px #00ff88;
-}
-
-.side{
-display:flex;
-flex-direction:column;
-gap:20px;
-}
-
-.mini{
-padding:25px;
-}
-
-.mini-title{
-color:#888;
-font-size:14px;
-}
-
-.mini-value{
-font-size:28px;
-font-weight:700;
-margin-top:10px;
-}
-
-.feed{
-margin-top:25px;
-}
-
-.feed-title{
-font-size:22px;
-margin-bottom:15px;
-}
-
-.feed-list{
-display:flex;
-flex-direction:column;
-gap:10px;
-max-height:250px;
-overflow:auto;
-}
-
-.feed-item{
-padding:14px;
-background:rgba(255,255,255,.03);
-border-radius:14px;
-display:flex;
-justify-content:space-between;
-}
-
-.footer{
-margin-top:30px;
-text-align:center;
-color:#666;
-}
-
-@media(max-width:900px){
-
-.grid{
-grid-template-columns:1fr;
-}
-
-.value{
-font-size:80px;
-}
-
-.header{
-flex-direction:column;
-gap:15px;
-}
-
-}
-
-</style>
 </head>
 
 <body>
 
-<div class="bg"></div>
+<!-- ================= NAVBAR ================= -->
 
-<div class="container">
+<nav class="navbar navbar-expand-lg navbar-dark">
 
-<div class="header">
+    <div class="container-fluid">
 
-<div>
-<div class="logo">TVMS</div>
-<div class="tag">
-TrailBox Vehicle Monitoring System
+        <a class="navbar-brand fw-bold fs-3">
+
+            <i class="fa-solid fa-car"></i>
+
+            TVMS
+
+        </a>
+
+        <div class="d-flex align-items-center">
+
+            <span id="clock" class="text-light me-4"></span>
+
+            <span id="status" class="badge bg-danger">
+
+                Offline
+
+            </span>
+
+        </div>
+
+    </div>
+
+</nav>
+
+
+<!-- ================= CONTENT ================= -->
+
+<div class="container-fluid mt-4">
+
+    <!-- Sensor Cards -->
+
+    <div class="row g-4">
+
+        <div class="col-lg-3">
+            <div class="sensor-card">
+                <i class="fa-solid fa-temperature-half icon"></i>
+                <h6>Temperature</h6>
+                <h2 id="temperature">-- °C</h2>
+            </div>
+        </div>
+
+        <div class="col-lg-3">
+            <div class="sensor-card">
+                <i class="fa-solid fa-droplet icon"></i>
+                <h6>Humidity</h6>
+                <h2 id="humidity">-- %</h2>
+            </div>
+        </div>
+
+        <div class="col-lg-3">
+            <div class="sensor-card">
+                <i class="fa-solid fa-gauge-high icon"></i>
+                <h6>Pressure</h6>
+                <h2 id="pressure">--</h2>
+            </div>
+        </div>
+
+        <div class="col-lg-3">
+            <div class="sensor-card">
+                <i class="fa-solid fa-battery-three-quarters icon"></i>
+                <h6>Voltage</h6>
+                <h2 id="voltage">-- V</h2>
+            </div>
+        </div>
+
+    </div>
+
+    <div class="row g-4 mt-2">
+
+        <div class="col-lg-3">
+            <div class="sensor-card">
+                <i class="fa-solid fa-bolt icon"></i>
+                <h6>Current</h6>
+                <h2 id="current">-- A</h2>
+            </div>
+        </div>
+
+        <div class="col-lg-9">
+            <div class="sensor-card">
+
+                <h5>Accelerometer</h5>
+
+                <div class="row text-center">
+
+                    <div class="col">
+                        <h6>X</h6>
+                        <h2 id="x">0</h2>
+                    </div>
+
+                    <div class="col">
+                        <h6>Y</h6>
+                        <h2 id="y">0</h2>
+                    </div>
+
+                    <div class="col">
+                        <h6>Z</h6>
+                        <h2 id="z">0</h2>
+                    </div>
+
+                </div>
+
+            </div>
+        </div>
+
+    </div>
+
+    <!-- Charts -->
+
+    <div class="row mt-4">
+
+        <div class="col-lg-12">
+
+            <div class="chart-card">
+
+                <h5>Temperature</h5>
+
+                <canvas id="tempChart"></canvas>
+
+            </div>
+
+        </div>
+
+    </div>
+
+    <div class="row mt-4">
+
+        <div class="col-lg-6">
+
+            <div class="chart-card">
+
+                <h5>Pressure</h5>
+
+                <canvas id="pressureChart"></canvas>
+
+            </div>
+
+        </div>
+
+        <div class="col-lg-6">
+
+            <div class="chart-card">
+
+                <h5>Battery</h5>
+
+                <canvas id="batteryChart"></canvas>
+
+            </div>
+
+        </div>
+
+    </div>
+
+    <div class="row mt-4">
+
+        <div class="col-lg-12">
+
+            <div class="chart-card">
+
+                <h5>Accelerometer</h5>
+
+                <canvas id="accelChart"></canvas>
+
+            </div>
+
+        </div>
+
+    </div>
+
 </div>
-</div>
 
-<div class="live-badge">
-🟢 LIVE
-</div>
+<footer>
 
-</div>
+    TVMS V2.0 |
+    STM32F407 |
+    ESP32 |
+    MQTT |
+    Flask |
+    MySQL
 
-<div class="grid">
+</footer>
 
-<div style="display:grid;grid-template-columns:repeat(3,1fr);gap:24px;">
-
-<div class="card main-card">
-<div class="label">
-LDR Value
-</div>
-
-<div class="value" id="sensorValue">
---
-</div>
-
-<div class="status">
-<div class="dot"></div>
-Live Data
-</div>
-</div>
-
-<div class="card main-card">
-<div class="label">
-Temperature
-</div>
-
-<div class="value" id="tempValue">
---
-</div>
-
-<div class="status">
-<div class="dot"></div>
-°C
-</div>
-</div>
-
-<div class="card main-card">
-<div class="label">
-Humidity
-</div>
-
-<div class="value" id="humValue">
---
-</div>
-
-<div class="status">
-<div class="dot"></div>
-%
-</div>
-</div>
-
-</div>
-
-<div class="side">
-
-<div class="card mini">
-<div class="mini-title">Device</div>
-<div class="mini-value">
-STM32 + ESP32
-</div>
-</div>
-
-<div class="card mini">
-<div class="mini-title">MQTT Status</div>
-<div class="mini-value" id="mqttStatus">
-Connecting...
-</div>
-</div>
-
-<div class="card mini">
-<div class="mini-title">Device Status</div>
-<div class="mini-value" id="deviceStatus">
-🔴 Offline
-</div>
-</div>
-
-<div class="card mini">
-<div class="mini-title">Last Update</div>
-<div class="mini-value" id="lastUpdate">
---
-</div>
-</div>
-
-</div>
-
-</div>
-
-<div class="card feed">
-
-<div class="feed-title">
-Live Activity Feed
-</div>
-
-<div class="feed-list" id="feed">
-</div>
-
-</div>
-
-<div class="footer">
-Trailbox IoT Dashboard • Version 1.0.3
-</div>
-
-</div>
-<script>
-let lastHeartbeat=0;
-
-let currentLdr = "--";
-let currentTemp = "--";
-let currentHum = "--";
-
-const client = mqtt.connect(
-'wss://__your_server__/mqtt',
-{
-username:'__username__',
-password:'__password__'
-});
-
-client.on('connect',()=>{
-
-document.getElementById(
-'mqttStatus'
-).innerText='Connected';
-
-client.subscribe('talktrail/vehicle/ldr');
-client.subscribe('talktrail/vehicle/temp');
-client.subscribe('talktrail/vehicle/humidity');
-client.subscribe('talktrail/vehicle/status');
-
-
-});
-
-client.on('message',(topic,message)=>{
-
-const value = message.toString();
-
-if(topic === 'talktrail/vehicle/status')
-{
-    lastHeartbeat = Date.now();
-
-    document.getElementById(
-    'deviceStatus'
-    ).innerText='🟢 Online';
-
-    return;
-}
-
-if(topic === 'talktrail/vehicle/ldr')
-{
-    currentLdr = value;
-    document.getElementById('sensorValue').innerText = value;
-}
-
-if(topic === 'talktrail/vehicle/temp')
-{
-    currentTemp = value;
-    document.getElementById('tempValue').innerText = value;
-}
-
-if(topic === 'talktrail/vehicle/humidity')
-{
-    currentHum = value;
-    document.getElementById('humValue').innerText = value;
-}
-
-document.getElementById(
-'lastUpdate'
-).innerText =
-new Date().toLocaleTimeString();
-
-const feed = document.getElementById('feed');
-
-if(topic === 'talktrail/vehicle/humidity')
-{
-    const item = document.createElement('div');
-
-    item.className = 'feed-item';
-
-    item.innerHTML =
-    '<span>' +
-    'LDR: ' + currentLdr +
-    ' | TEMP: ' + currentTemp +
-    ' | HUM: ' + currentHum +
-    '</span><span>' +
-    new Date().toLocaleTimeString() +
-    '</span>';
-
-    feed.prepend(item);
-
-    if(feed.children.length > 20)
-    {
-        feed.removeChild(feed.lastChild);
-    }
-}
-
-});
-
-setInterval(()=>{
-
-if(
-Date.now()-lastHeartbeat > 10000
-)
-{
-document.getElementById(
-'deviceStatus'
-).innerText='🔴 Offline';
- document.getElementById('sensorValue').innerText='--';
-    document.getElementById('tempValue').innerText='--';
-    document.getElementById('humValue').innerText='--';
-
-    currentLdr = "--";
-    currentTemp = "--";
-    currentHum = "--";
-}
-
-},1000);
-
-client.on('error',()=>{
-
-document.getElementById(
-'mqttStatus'
-).innerText='Offline';
-
-});
-
-</script>
+<script src="{{ url_for('static', filename='js/script.js') }}"></script>
 
 </body>
+
 </html>

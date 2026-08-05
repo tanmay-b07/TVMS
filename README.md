@@ -1,283 +1,253 @@
 # TVMS - TrailBox Vehicle Monitoring System
 
-TVMS (TrailBox Vehicle Monitoring System) is a modular real-time vehicle monitoring platform built using STM32F407, CAN Bus, ESP32, MQTT and Flask.
+TVMS (TrailBox Vehicle Monitoring System) is a modular real-time vehicle
+monitoring platform built using STM32F407, CAN Bus, ESP32, MQTT and
+Flask.
 
-The project demonstrates end-to-end embedded communication, sensor data acquisition, CAN-based networking, wireless MQTT communication and real-time dashboard visualization. TVMS is designed as a scalable platform for future vehicle telemetry and fleet monitoring applications.
+The project demonstrates end-to-end embedded communication, multi-sensor
+data acquisition, CAN-based networking and provides a scalable
+foundation for future MQTT, Flask and dashboard integration.
 
----
+------------------------------------------------------------------------
 
 # Version
 
-Current Release: **V3.2.0**
+**Current Release:** V3.3.0
 
-Status: **Released**
+**Status:** Released
 
----
+------------------------------------------------------------------------
 
 # Features
 
-- Complete STM32 TX firmware
-- Multi-sensor data acquisition
-- Modular sensor driver architecture
-- DHT22 integration
-- INA219 integration
-- HX710B integration
-- LIS3DSH integration
-- CAN frame generation
-- CAN message transmission
-- Custom reusable driver library
-- Non-blocking firmware design
-- Timer-based processing
-- MQTT-ready architecture
-- Real-time IoT platform
+-   Complete STM32 TX firmware
+-   Complete STM32 RX firmware
+-   Multi-sensor data acquisition
+-   DHT22 integration
+-   INA219 integration
+-   HX710B integration
+-   LIS3DSH integration
+-   CAN frame generation
+-   CAN message transmission
+-   CAN message reception
+-   CAN frame decoding
+-   UART forwarding to ESP32
+-   Modular sensor driver architecture
+-   Custom reusable driver libraries
+-   Non-blocking firmware design
+-   Timer-based processing
+-   End-to-end embedded communication framework
 
----
+------------------------------------------------------------------------
 
 # System Architecture
 
-```text
-Sensors (SPI / I2C / Digital)
-        │
-        ▼
- STM32F407 (TX Node)
-        │
- Built-in CAN Peripheral
-        │
- CJMCU-2551 CAN Transceiver
-        │
-============= CAN Bus =============
-        │
- CJMCU-2551 CAN Transceiver
-        │
- STM32F407 (RX Node)
-        │
- UART
-        │
- ESP32 Gateway
-        │
- MQTT Broker
-        │
- Flask Dashboard
-        │
- Android Application
+``` text
+                 Sensors
+(DHT22, INA219, HX710B, LIS3DSH)
+                    │
+                    ▼
+          STM32F407 (TX Node)
+                    │
+         Built-in CAN Peripheral
+                    │
+       CJMCU-2551 CAN Transceiver
+════════════════ CAN Bus ════════════════
+       CJMCU-2551 CAN Transceiver
+                    │
+          STM32F407 (RX Node)
+                    │
+                 UART (USART2)
+                    │
+              ESP32 Gateway
+                    │
+          (MQTT / Flask - V4.0)
 ```
 
----
+------------------------------------------------------------------------
 
 # Technology Stack
 
 ## Hardware
 
-- STM32F407 Discovery
-- ESP32 DevKit
-- CJMCU-2551 CAN Transceiver
-- DHT22 Sensor
-- INA219 Current & Voltage Monitor
-- HX710B Pressure Sensor
-- LIS3DSH Accelerometer
+-   STM32F407 Discovery
+-   ESP32 DevKit
+-   CJMCU-2551 CAN Transceiver
+-   DHT22
+-   INA219
+-   HX710B
+-   LIS3DSH
 
-## Software
+## Software (Current)
 
-- STM32CubeIDE
-- STM32CubeMX
-- Arduino IDE
-- Embedded C (STM32 HAL)
-- MQTT
-- HiveMQ / Mosquitto
-- HTML
-- CSS
-- JavaScript
-- Flask
-- SQLite
-- MIT App Inventor
+-   STM32CubeIDE
+-   STM32CubeMX
+-   Arduino IDE
+-   Embedded C (STM32 HAL)
 
----
+## Planned (V4.0)
+
+-   MQTT
+-   HiveMQ / Mosquitto
+-   Flask
+-   SQLite
+-   HTML
+-   CSS
+-   JavaScript
+-   MIT App Inventor
+
+------------------------------------------------------------------------
 
 # Project Structure
 
-```text
+``` text
 TVMS/
-
 ├── app/
-│   ├── TVMS.apk
-│   ├── screenshots/
-│   └── README.md
-│
-├── stm32_tx/
-│   ├── Core/
-│   ├── Drivers/
-│   ├── Drivers_Custom/
-│   │   ├── dht22/
-│   │   ├── hx710b/
-│   │   ├── ina219/
-│   │   └── lis3dsh/
-│   └── README.md
-│
-├── esp32/
 ├── dashboard/
 ├── docs/
+│   ├── architecture.md
+│   ├── can_protocol.md
+│   ├── hardware_connections.md
+│   └── pin_configuration.md
+├── esp32/
+├── stm32_tx/
+├── stm32_rx/
 ├── screenshots/
 └── README.md
 ```
 
----
+------------------------------------------------------------------------
 
 # Implemented Features
 
-## V3.2.0
+## V3.3.0
 
 ### Added
 
-- Complete STM32 TX firmware
-- Multi-sensor integration
-- DHT22 integration
-- INA219 integration
-- HX710B integration
-- LIS3DSH integration
-- CAN frame generation
-- CAN message transmission
-- Sensor scheduling
+-   Complete STM32 RX firmware
+-   CAN message reception
+-   CAN frame decoding
+-   UART forwarding to ESP32
+-   End-to-end STM32 TX ↔ STM32 RX communication
+-   Technical documentation
+-   Hardware documentation
+-   CAN protocol documentation
+-   Pin configuration documentation
 
 ### Improved
 
-- STM32 TX architecture
-- Driver integration
-- Firmware reliability
-- Code organization
-- CAN communication framework
+-   Embedded communication framework
+-   Firmware organization
+-   Repository documentation
+-   CAN communication reliability
 
----
+------------------------------------------------------------------------
+
+## V3.2.0
+
+-   Complete STM32 TX firmware
+-   Multi-sensor integration
+-   CAN frame generation
+-   CAN transmission
 
 ## V3.1.0
 
-### Added
-
-- Modular sensor driver architecture
-- DHT22 driver
-- INA219 driver
-- HX710B driver
-- LIS3DSH driver
-- STM32 TX project structure
-- Custom driver library
-
-### Improved
-
-- Code organization
-- Driver modularity
-- Firmware scalability
-
----
+-   Modular sensor driver architecture
+-   Custom driver library
 
 ## V2.0.0
 
-- Multi-sensor monitoring
-- Temperature monitoring
-- Humidity monitoring
-- Dedicated MQTT topics
-- Enhanced dashboard
-- Activity feed
-- Improved firmware
-- ESP32 MQTT gateway
+-   Multi-sensor monitoring
+-   ESP32 MQTT gateway
+-   Dashboard improvements
 
----
+## V1.x
 
-## V1.0.3
+-   UART communication
+-   HiveMQ integration
+-   Android companion app
+-   Non-blocking firmware
+-   Device heartbeat monitoring
 
-- Non-blocking firmware
-- Timer scheduling
-- Firmware optimization
+------------------------------------------------------------------------
 
----
+# Documentation
 
-## V1.0.2
+Available in `docs/`
 
-- Device heartbeat monitoring
-- Online / Offline detection
+-   System Architecture
+-   CAN Communication Protocol
+-   Hardware Connections
+-   Pin Configuration
 
----
-
-## V1.0.1
-
-- Android companion application
-
----
-
-## V1.0.0
-
-- STM32 ADC acquisition
-- UART communication
-- ESP32 MQTT gateway
-- HiveMQ integration
-- Live dashboard
-
----
-
-# Release History
-
-## V3.2.0 — Complete STM32 TX Firmware
-
-### Added
-
-- Complete STM32 TX firmware
-- Multi-sensor integration
-- CAN frame generation
-- CAN message transmission
-- Sensor scheduling
-
-### Improved
-
-- Firmware architecture
-- Driver integration
-- Code maintainability
-- CAN transmission framework
-
-### No Changes
-
-- STM32 RX firmware
-- ESP32 firmware
-- MQTT communication
-- Dashboard
-- Android application
-
----
+------------------------------------------------------------------------
 
 # Roadmap
 
-## V3.3
-
-- STM32 RX firmware
-- CAN message reception
-- CAN frame decoding
-- UART communication
-- TX-RX integration
-
 ## V4.0
 
-- ESP32 gateway
-- MQTT communication
-- Flask backend
-- SQLite database
-- Dashboard
-- Android application
+-   ESP32 Gateway
+-   MQTT Communication
+-   Flask Backend
+-   SQLite Database
+-   Live Dashboard
+-   Android Application
 
 ## V5.0
 
-- Production-ready TVMS platform
-- Vehicle telemetry
-- Fleet monitoring
-- Alerts & notifications
-- Advanced analytics
+-   Vehicle Telemetry
+-   Fleet Monitoring
+-   Alerts & Notifications
+-   Advanced Analytics
+-   OTA Firmware Updates
 
----
+------------------------------------------------------------------------
+
+# Repository Modules
+
+## STM32 TX
+
+-   Sensor acquisition
+-   CAN frame generation
+-   CAN transmission
+
+## STM32 RX
+
+-   CAN reception
+-   CAN decoding
+-   UART forwarding
+
+## ESP32
+
+-   UART reception
+-   MQTT publishing (V4.0)
+
+## Dashboard
+
+-   Live monitoring (V4.0)
+
+------------------------------------------------------------------------
 
 # Live Dashboard
 
 https://v1dashboard.trailbox.in/release2.html
 
----
+------------------------------------------------------------------------
+
+# Project Status
+
+**Current Stage:** Embedded Communication Layer Completed
+
+**Next Milestone:** V4.0 - ESP32 + MQTT + Flask + Dashboard
+
+------------------------------------------------------------------------
 
 # Author
 
 **Tanmay Bhosle**
+
+Electronics & Telecommunication Engineer
+
+Embedded Systems \| STM32 \| CAN Bus \| ESP32 \| IoT
 
 Built under the **TrailBox** ecosystem.

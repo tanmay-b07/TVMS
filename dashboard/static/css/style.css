@@ -1,0 +1,315 @@
+/* =========================
+   TVMS V2.0 Dashboard
+========================= */
+
+*{
+    margin:0;
+    padding:0;
+    box-sizing:border-box;
+}
+
+body{
+
+    background:#0f172a;
+    color:#fff;
+    font-family:'Segoe UI',sans-serif;
+
+}
+
+/* =========================
+   Navbar
+========================= */
+
+.navbar{
+
+    background:#111827;
+
+    padding:15px 30px;
+
+    border-bottom:3px solid #06b6d4;
+
+    box-shadow:0 5px 15px rgba(0,0,0,.4);
+
+}
+
+.navbar-brand{
+
+    color:#38bdf8 !important;
+
+    letter-spacing:1px;
+
+}
+
+#clock{
+
+    font-weight:bold;
+
+    font-size:18px;
+
+}
+
+/* =========================
+   Cards
+========================= */
+
+.sensor-card{
+
+    background:#1e293b;
+
+    border-radius:18px;
+
+    padding:25px;
+
+    text-align:center;
+
+    transition:.35s;
+
+    border:1px solid rgba(255,255,255,.08);
+
+    box-shadow:0 8px 20px rgba(0,0,0,.35);
+
+}
+
+.sensor-card:hover{
+
+    transform:translateY(-6px);
+
+    box-shadow:0 0 20px rgba(6,182,212,.45);
+
+}
+
+.sensor-card h6{
+
+    color:#94a3b8;
+
+    margin-top:10px;
+
+    margin-bottom:10px;
+
+    font-size:16px;
+
+}
+
+.sensor-card h2{
+
+    font-weight:bold;
+
+    color:#38bdf8;
+
+}
+
+.icon{
+
+    font-size:42px;
+
+    color:#38bdf8;
+
+}
+
+/* =========================
+   Chart Cards
+========================= */
+
+.chart-card{
+
+    background:#1e293b;
+
+    border-radius:18px;
+
+    padding:20px;
+
+    box-shadow:0 8px 20px rgba(0,0,0,.35);
+
+}
+
+.chart-card h5{
+
+    margin-bottom:20px;
+
+    color:#38bdf8;
+
+}
+
+canvas{
+
+    width:100%!important;
+
+    height:300px!important;
+
+}
+
+/* =========================
+   Badge
+========================= */
+
+.badge{
+
+    font-size:15px;
+
+    padding:10px 16px;
+
+}
+
+/* =========================
+   Footer
+========================= */
+
+footer{
+
+    text-align:center;
+
+    padding:25px;
+
+    color:#94a3b8;
+
+    margin-top:40px;
+
+}
+
+/* =========================
+   Table
+========================= */
+
+table{
+
+    color:white!important;
+
+}
+
+.table-dark{
+
+    background:#1e293b;
+
+}
+
+/* =========================
+   Scrollbar
+========================= */
+
+::-webkit-scrollbar{
+
+    width:10px;
+
+}
+
+::-webkit-scrollbar-track{
+
+    background:#0f172a;
+
+}
+
+::-webkit-scrollbar-thumb{
+
+    background:#38bdf8;
+
+    border-radius:20px;
+
+}
+
+/* =========================
+   Animation
+========================= */
+
+@keyframes glow{
+
+    0%{
+
+        box-shadow:0 0 5px #38bdf8;
+
+    }
+
+    50%{
+
+        box-shadow:0 0 20px #38bdf8;
+
+    }
+
+    100%{
+
+        box-shadow:0 0 5px #38bdf8;
+
+    }
+
+}
+
+.bg-success{
+
+    animation:glow 1.5s infinite;
+
+}
+
+/* =========================
+   Responsive
+========================= */
+
+@media(max-width:992px){
+
+.sensor-card{
+
+    margin-bottom:15px;
+
+}
+
+canvas{
+
+    height:250px!important;
+
+}
+
+}
+
+@media(max-width:768px){
+
+.navbar-brand{
+
+    font-size:22px;
+
+}
+
+.sensor-card h2{
+
+    font-size:28px;
+
+}
+
+.icon{
+
+    font-size:32px;
+
+}
+
+canvas{
+
+    height:220px!important;
+
+}
+
+}
+
+@media(max-width:576px){
+
+.navbar{
+
+    padding:15px;
+
+}
+
+#clock{
+
+    display:none;
+
+}
+
+.sensor-card{
+
+    padding:18px;
+
+}
+
+.sensor-card h2{
+
+    font-size:24px;
+
+}
+
+}
